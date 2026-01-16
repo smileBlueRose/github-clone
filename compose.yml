@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:16.11-alpine
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+      PGTZ: UTC
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    ports:
+      - "5432:5432"
+    container_name: github-clone-db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+secrets:
+  db_password:
+    file: ./db_password.txt
+
+volumes:
+  db_data:
+
