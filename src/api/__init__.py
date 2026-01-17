@@ -1,3 +1,3 @@
 from flask import Blueprint
 
-router = Blueprint('api', __name__)
+router = Blueprint("api", __name__)
