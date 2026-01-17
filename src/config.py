@@ -71,10 +71,18 @@ class UserConfig(BaseModel):
 
     class Password(BaseModel):
         min_length: int = 8
+        max_length: int = 72  # limit for brcypt algorithm
+
+    class HashedPassword(BaseModel):
+        max_length: int = 60  # brypt algorithm always gives a string of length 60
+
+    class Email(BaseModel):
         max_length: int = 255
 
     username: Username = Username()
     password: Password = Password()
+    hashed_password: HashedPassword = HashedPassword()
+    email: Email = Email()
 
 
 class TimeConfig(BaseModel):
