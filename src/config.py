@@ -89,6 +89,8 @@ class TimeConfig(BaseModel):
     default_tz: timezone = UTC
     db_tz: timezone = UTC
 
+    model_config = {"arbitrary_types_allowed": True}
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
