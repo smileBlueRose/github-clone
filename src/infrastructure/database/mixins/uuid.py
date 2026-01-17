@@ -10,5 +10,5 @@ class UUIDMixin:
         return mapped_column(
             PostgresUUID(as_uuid=True),
             primary_key=True,
-            default_factory=uuid4,
+            default=uuid4,
         )
