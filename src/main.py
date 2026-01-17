@@ -6,9 +6,8 @@ from asgiref.wsgi import WsgiToAsgi
 from flask import Flask
 
 from api import router as api_router
-from core.config import settings
-from core.models import db_helper
-from core.models.db_helper import check_connection
+from config import settings
+from infrastructure.database.db_helper import check_connection, db_helper
 
 app = Flask(__name__)
 app.register_blueprint(api_router, url_prefix=settings.api.prefix)
