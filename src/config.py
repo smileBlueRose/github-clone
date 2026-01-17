@@ -12,8 +12,14 @@ class RunConfig(BaseModel):
     reload: bool = True
 
 
+class ApiV1Confg(BaseModel):
+    prefix: str = "/v1"
+    users_prefix: str = "/users"
+
+
 class ApiConfig(BaseModel):
     prefix: str = "/api"
+    v1: ApiV1Confg = ApiV1Confg()
 
 
 class DatabaseConfig(BaseModel):

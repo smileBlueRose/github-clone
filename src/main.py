@@ -10,7 +10,7 @@ from config import settings
 from infrastructure.database.db_helper import check_connection, db_helper
 
 app = Flask(__name__)
-app.register_blueprint(api_router, url_prefix=settings.api.prefix)
+app.register_blueprint(api_router)
 
 asgi_app = WsgiToAsgi(app)  # type: ignore
 
