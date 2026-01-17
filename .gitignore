@@ -219,3 +219,7 @@ __marimo__/
 
 # Secrets
 db_password.txt
+
+.vscode/
+
+*.sql
