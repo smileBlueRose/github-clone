@@ -1,5 +1,6 @@
 from typing import AsyncGenerator
 
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -48,3 +49,14 @@ db_helper = DatabaseHelper(
     pool_size=settings.db.pool_size,
     max_overflow=settings.db.max_overflow,
 )
+
+
+async def check_connection() -> None:
+    try:
+        async for session in db_helper.session_getter():
+            await session.execute(text("SELECT 1"))
+            print("Successful connection to the database.")
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        await db_helper.dispose()
