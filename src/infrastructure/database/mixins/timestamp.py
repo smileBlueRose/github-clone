@@ -11,7 +11,7 @@ class TimestampMixin:
     def created_at(cls) -> Mapped[datetime]:
         return mapped_column(
             DateTime(timezone=True),
-            default_factory=lambda: datetime.now(tz=settings.time.db_tz),
+            default=lambda: datetime.now(tz=settings.time.db_tz),
             nullable=False,
         )
 
@@ -20,4 +20,5 @@ class TimestampMixin:
         return mapped_column(
             DateTime(timezone=True),
             nullable=True,
+            onupdate=lambda: datetime.now(tz=settings.time.db_tz),
         )
