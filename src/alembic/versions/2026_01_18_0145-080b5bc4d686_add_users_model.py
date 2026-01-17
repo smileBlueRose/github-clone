@@ -8,9 +8,9 @@ Create Date: 2026-01-18 01:45:00.271180
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "080b5bc4d686"
@@ -30,7 +30,6 @@ def upgrade() -> None:
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
-        
         sa.PrimaryKeyConstraint("id", name=op.f("pk_users")),
         sa.UniqueConstraint("email", name=op.f("uq_users_email")),
         sa.UniqueConstraint("username", name=op.f("uq_users_username")),
