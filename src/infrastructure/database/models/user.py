@@ -2,13 +2,13 @@ from sqlalchemy import Boolean, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from config import settings
-from infrastructure.database.mixins.timestamp import TimestampMixin
+from infrastructure.database.mixins.timestamp import CreateadAtMixin, UpdatedAtMixin
 from infrastructure.database.mixins.uuid import UUIDMixin
 
 from .base import Base
 
 
-class UserModel(Base, UUIDMixin, TimestampMixin):
+class UserModel(Base, UUIDMixin, CreateadAtMixin, UpdatedAtMixin):
     __tablename__ = "users"
 
     email: Mapped[str] = mapped_column(
