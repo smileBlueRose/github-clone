@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 from config import settings
 
 
-class CreateadAtMixin:
+class CreatedAtMixin:
     @declared_attr
     def created_at(cls) -> Mapped[datetime]:
         return mapped_column(
@@ -14,6 +14,7 @@ class CreateadAtMixin:
             default=lambda: datetime.now(tz=settings.time.db_tz),
             nullable=False,
         )
+
 
 class UpdatedAtMixin:
     @declared_attr
