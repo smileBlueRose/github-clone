@@ -1,3 +1,4 @@
+from datetime import UTC, timezone
 from pathlib import Path
 from urllib.parse import quote_plus
 
@@ -63,6 +64,24 @@ class DatabaseConfig(BaseModel):
         )
 
 
+class UserConfig(BaseModel):
+    class Username(BaseModel):
+        min_length: int = 3
+        max_length: int = 255
+
+    class Password(BaseModel):
+        min_length: int = 8
+        max_length: int = 255
+
+    username: Username = Username()
+    password: Password = Password()
+
+
+class TimeConfig(BaseModel):
+    default_tz: timezone = UTC
+    db_tz: timezone = UTC
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
@@ -74,6 +93,9 @@ class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: ApiConfig = ApiConfig()
     db: DatabaseConfig
+    time: TimeConfig = TimeConfig()
+
+    user: UserConfig = UserConfig()
 
 
 settings = Settings()  # type: ignore

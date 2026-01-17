@@ -1,0 +1,24 @@
+from datetime import datetime
+from uuid import UUID, uuid4
+
+from pydantic import BaseModel, EmailStr, Field
+
+from config import settings
+
+
+class User(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    email: EmailStr
+    username: str = Field(
+        min_length=settings.user.username.min_length,
+        max_length=settings.user.username.max_length,
+    )
+    hashed_password: str
+    is_active: bool = True
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(tz=settings.time.db_tz)
+    )
+    updated_at: datetime | None = None
+
+    class Config:
+        from_attributes = True
