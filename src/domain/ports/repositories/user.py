@@ -1,6 +1,8 @@
 from abc import abstractmethod
 from uuid import UUID
 
+from pydantic import EmailStr
+
 from domain.entities.user import User
 from domain.filters.user import UserFilter
 from domain.ports.repository import AbstractReadRepository, AbstractWriteRepository
@@ -10,7 +12,17 @@ from domain.schemas.user import UserCreateSchema, UserUpdateSchema
 class AbstractUserReadRepository(AbstractReadRepository[User, UUID, UserFilter]):
     @abstractmethod
     async def get_by_identity(self, identity: UUID) -> User:
-        """:raises domain.exception.NotFoundException:"""
+        """:raises UserNotFoundException:"""
+        pass
+
+    @abstractmethod
+    async def get_by_email(self, email: EmailStr) -> User:
+        """:raises UserNotFoundException:"""
+        pass
+
+    @abstractmethod
+    async def get_by_username(self, username: str) -> User:
+        """:raises UserNotFoundException:"""
         pass
 
     @abstractmethod

@@ -15,7 +15,7 @@ Identity = TypeVar("Identity")
 class AbstractReadRepository(ABC, Generic[E, Identity, F]):
     @abstractmethod
     async def get_by_identity(self, identity: Identity) -> E:
-        """:raises domain.exception.NotFoundException:"""
+        """:raises NotFoundException:"""
         pass
 
     @abstractmethod
