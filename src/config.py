@@ -130,3 +130,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()  # type: ignore
+SRC_DIR = Path(__file__).parent
