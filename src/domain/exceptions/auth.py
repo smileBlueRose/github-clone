@@ -11,3 +11,7 @@ class InvalidTokenException(AuthException):
 
 class TokenExpiredException(InvalidTokenException):
     pass
+
+
+class WeakPasswordException(AuthException):
+    pass
