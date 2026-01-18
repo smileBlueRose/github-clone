@@ -112,6 +112,10 @@ class AuthConfig(BaseModel):
     jwt: JWT = JWT()
 
 
+class Logger(BaseModel):
+    log_level: str
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
@@ -125,6 +129,7 @@ class Settings(BaseSettings):
     db: DatabaseConfig
     time: TimeConfig = TimeConfig()
     auth: AuthConfig = AuthConfig()
+    logger: Logger
 
     user: UserConfig = UserConfig()
 

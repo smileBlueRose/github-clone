@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from config import settings
+from loguru import logger
 
 
 class DatabaseHelper:
@@ -36,6 +37,7 @@ class DatabaseHelper:
 
     async def dispose(self) -> None:
         await self.engine.dispose()
+        logger.info("Database disposed.")
 
     async def session_getter(self) -> AsyncGenerator[AsyncSession, None]:
         async with self.async_sessionmaker() as session:
@@ -55,7 +57,7 @@ async def check_connection() -> None:
     try:
         async for session in db_helper.session_getter():
             await session.execute(text("SELECT 1"))
-            print("Successful connection to the database.")
+            logger.info("Successfully connected to the database.")
     except Exception as e:
         print(f"Error: {e}")
     finally:
