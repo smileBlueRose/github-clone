@@ -7,6 +7,8 @@ from pydantic import BaseModel, PostgresDsn
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+SRC_DIR = Path(__file__).parent.parent
+
 
 class RunConfig(BaseModel):
     host: str = "127.0.0.1"
@@ -118,7 +120,7 @@ class Logger(BaseModel):
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=(".env.template", ".env"),
+        env_file=(SRC_DIR / ".env.template", SRC_DIR / ".env"),
         case_sensitive=False,
         env_nested_delimiter="__",
         env_prefix="APP_CONFIG__",
@@ -135,4 +137,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()  # type: ignore
-SRC_DIR = Path(__file__).parent
