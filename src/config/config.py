@@ -108,7 +108,7 @@ class AuthConfig(BaseModel):
         }
         refresh_decode_options: dict[str, Any] = {
             "verify_signature": True,
-            "require": ("sub", "iat", "exp", "type"),
+            "require": ("sub", "iat", "exp", "jti", "type"),
         }
 
     jwt: JWT = JWT()
