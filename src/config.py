@@ -1,5 +1,6 @@
 from datetime import UTC, timezone
 from pathlib import Path
+from typing import Any
 from urllib.parse import quote_plus
 
 from pydantic import BaseModel, PostgresDsn
@@ -92,6 +93,25 @@ class TimeConfig(BaseModel):
     model_config = {"arbitrary_types_allowed": True}
 
 
+class AuthConfig(BaseModel):
+    class JWT(BaseModel):
+        algorithm: str = "RS256"
+
+        access_token_lifetime: int = 15 * 60  # 15 minutes
+        refresh_token_lifetime: int = 30 * 24 * 3600  # 30 days
+
+        access_decode_options: dict[str, Any] = {
+            "verify_signature": True,
+            "require": ("sub", "email", "iat", "exp", "type"),
+        }
+        refresh_decode_options: dict[str, Any] = {
+            "verify_signature": True,
+            "require": ("sub", "iat", "exp", "type"),
+        }
+
+    jwt: JWT = JWT()
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
@@ -104,6 +124,7 @@ class Settings(BaseSettings):
     api: ApiConfig = ApiConfig()
     db: DatabaseConfig
     time: TimeConfig = TimeConfig()
+    auth: AuthConfig = AuthConfig()
 
     user: UserConfig = UserConfig()
 
