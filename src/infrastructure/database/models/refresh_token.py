@@ -14,8 +14,6 @@ class RefreshTokenModel(Base, CreatedAtMixin):
     __tablename__ = "refresh_tokens"
 
     jti: Mapped[UUID] = mapped_column(primary_key=True, index=True)
-    user_id: Mapped[UUID] = mapped_column(
-        ForeignKey(UserModel.id, ondelete="CASCADE"), nullable=False
-    )
+    user_id: Mapped[UUID] = mapped_column(ForeignKey(UserModel.id, ondelete="CASCADE"), nullable=False)
 
     expires_at: Mapped[datetime] = mapped_column(index=True, nullable=False)

@@ -41,9 +41,7 @@ def upgrade() -> None:
         ["expires_at"],
         unique=False,
     )
-    op.create_index(
-        op.f("ix_refresh_tokens_jti"), "refresh_tokens", ["jti"], unique=False
-    )
+    op.create_index(op.f("ix_refresh_tokens_jti"), "refresh_tokens", ["jti"], unique=False)
 
 
 def downgrade() -> None:

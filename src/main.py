@@ -9,7 +9,6 @@ from api import router as api_router
 from config import settings
 from infrastructure.database.db_helper import check_connection, db_helper
 
-
 app = Flask(__name__)
 app.register_blueprint(api_router)
 

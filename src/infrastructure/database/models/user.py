@@ -11,9 +11,7 @@ from .base import Base
 class UserModel(Base, UUIDMixin, CreatedAtMixin, UpdatedAtMixin):
     __tablename__ = "users"
 
-    email: Mapped[str] = mapped_column(
-        String(length=settings.user.email.max_length), unique=True, nullable=False
-    )
+    email: Mapped[str] = mapped_column(String(length=settings.user.email.max_length), unique=True, nullable=False)
     username: Mapped[str] = mapped_column(
         String(length=settings.user.username.max_length),
         unique=True,

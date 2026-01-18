@@ -15,9 +15,7 @@ class User(BaseModel):
     )
     hashed_password: str
     is_active: bool = True
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(tz=settings.time.db_tz)
-    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(tz=settings.time.db_tz))
     updated_at: datetime | None = None
 
     model_config = {"from_attributes": True}
