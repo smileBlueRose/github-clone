@@ -1,28 +1,30 @@
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from domain.enums.token_type import TokenTypeEnum
+from typing import Literal
 
 
 class AccessTokenPayload(BaseModel):
     sub: UUID
+    email: EmailStr
 
-    exp: int
     iat: int
+    exp: int
 
-    type: TokenTypeEnum = TokenTypeEnum.ACCESS
+    type: Literal[TokenTypeEnum.ACCESS] = TokenTypeEnum.ACCESS
 
 
 class RefreshTokenPayload(BaseModel):
     sub: UUID
 
-    exp: int
     iat: int
+    exp: int
 
     jti: UUID
 
-    type: TokenTypeEnum = TokenTypeEnum.REFRESH
+    type: Literal[TokenTypeEnum.REFRESH] = TokenTypeEnum.REFRESH
 
 
 class AccessToken(BaseModel):
