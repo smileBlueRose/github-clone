@@ -1,12 +1,13 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import EmailStr, Field
 
 from config import settings
+from domain.ports.entity import BaseEntity
 
 
-class User(BaseModel):
+class User(BaseEntity):
     id: UUID = Field(default_factory=uuid4)
     email: EmailStr
     username: str = Field(
