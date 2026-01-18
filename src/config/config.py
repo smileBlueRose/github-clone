@@ -1,3 +1,4 @@
+import re
 from datetime import UTC, timezone
 from pathlib import Path
 from typing import Any
@@ -72,10 +73,6 @@ class UserConfig(BaseModel):
         min_length: int = 3
         max_length: int = 255
 
-    class Password(BaseModel):
-        min_length: int = 8
-        max_length: int = 72  # limit for brcypt algorithm
-
     class HashedPassword(BaseModel):
         max_length: int = 60  # brypt algorithm always gives a string of length 60
 
@@ -83,7 +80,6 @@ class UserConfig(BaseModel):
         max_length: int = 255
 
     username: Username = Username()
-    password: Password = Password()
     hashed_password: HashedPassword = HashedPassword()
     email: Email = Email()
 
@@ -111,7 +107,15 @@ class AuthConfig(BaseModel):
             "require": ("sub", "iat", "exp", "jti", "type"),
         }
 
+    class Password(BaseModel):
+        min_length: int = 8
+        max_length: int = 72  # limit for brcypt algorithm
+
+        # Passwords contains at least one: lowercase letter, uppercase letter and digit
+        pattern: re.Pattern[str] = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$")
+
     jwt: JWT = JWT()
+    password: Password = Password()
 
 
 class Logger(BaseModel):
