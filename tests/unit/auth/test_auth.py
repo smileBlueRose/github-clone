@@ -8,7 +8,7 @@ from config import settings
 from domain.entities.user import User
 from domain.enums.token_type import TokenTypeEnum
 from domain.exceptions.auth import InvalidTokenException, TokenExpiredException
-from domain.services.auth import TokenService
+from domain.services.auth.token import TokenService
 from domain.value_objects.token import AccessToken, AccessTokenPayload, RefreshToken
 
 LIFETIME = 3600
