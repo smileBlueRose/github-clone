@@ -1,3 +1,4 @@
+from typing import Self
 from uuid import UUID
 
 from pydantic import EmailStr
@@ -18,10 +19,27 @@ class UserNotFoundException(UserException, NotFoundException):
         self.email = email
         self.username = username
 
-# TODO: add context
-class UserAlreadyExistsException(UserException, AlreadyExistsException):
-    pass
 
-# TODO: add context
+class UserAlreadyExistsException(UserException, AlreadyExistsException):
+    def __init__(self, *, email: EmailStr | None = None, username: str | None = None) -> None:
+        self.email = email
+        self.username = username
+
+        if email:
+            self.message = f"User with email '{email}' already exists"
+        elif username:
+            self.message = f"User with username '{username}' already exists"
+        else:
+            self.message = "User already exists"
+
+        super().__init__(self.message)
+
+
 class InvalidUsernameException(UserException):
-    pass
+    @classmethod
+    def too_short(cls, min_len: int) -> Self:
+        return cls(f"Username must be at least {min_len} characters long.")
+
+    @classmethod
+    def too_long(cls, max_len: int) -> Self:
+        return cls(f"Username must not exceed {max_len} characters.")

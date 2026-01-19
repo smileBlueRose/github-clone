@@ -34,10 +34,10 @@ class RegistrationService(BaseService):
         """
 
         if await self._email_exists(email=email):
-            raise UserAlreadyExistsException("User with this email already exists.")
+            raise UserAlreadyExistsException(email=email)
 
         if await self._username_exists(username=username):
-            raise UserAlreadyExistsException("User with this username already exists.")
+            raise UserAlreadyExistsException(username=username)
 
         self._check_username_policy(username=username)
         self._check_password_policy(password=password)
@@ -70,15 +70,11 @@ class RegistrationService(BaseService):
         """
 
         if len(password) < settings.auth.password.min_length:
-            raise WeakPasswordException(
-                f"Password must be at least {settings.auth.password.min_length} characters long."
-            )
+            raise WeakPasswordException.too_short(settings.auth.password.min_length)
         if len(password) > settings.auth.password.max_length:
-            raise WeakPasswordException(f"Password must not exceed {settings.auth.password.max_length} characters.")
+            raise WeakPasswordException.too_long(settings.auth.password.max_length)
         if not re.match(settings.auth.password.pattern, password):
-            raise WeakPasswordException(
-                "Password must contain at least one digit, one uppercase letter and one lowercase letter."
-            )
+            raise WeakPasswordException.weak_pattern()
 
     def _check_username_policy(self, username: str) -> None:
         """
@@ -87,11 +83,9 @@ class RegistrationService(BaseService):
         :raises InvalidUsernameException:
         """
         if len(username) < settings.user.username.min_length:
-            raise InvalidUsernameException(
-                f"Username must be at least {settings.user.username.min_length} characters long."
-            )
+            raise InvalidUsernameException.too_short(settings.user.username.min_length)
         if len(username) > settings.user.username.max_length:
-            raise InvalidUsernameException(f"Username must not exceed {settings.user.username.max_length} characters.")
+            raise InvalidUsernameException.too_long(settings.user.username.max_length)
 
     def _hash_password(self, password: str) -> str:
         salt: bytes = bcrypt.gensalt()
