@@ -1,47 +1,46 @@
 from loguru import logger
 
 from application.commands.auth import UserRegisterCommand
+from application.ports.uow import AbstractUnitOfWork
 from application.ports.user_case import AbstractUseCase
 from domain.entities.user import User
-from domain.ports.repositories.user import AbstractUserWriteRepository
 from domain.services.auth.registration import RegistrationService
+from infrastructure.repositories.user import UserReadRepository, UserWriteRepository
 
 
 class RegisterUserUseCase(AbstractUseCase[UserRegisterCommand]):
-    def __init__(
-        self,
-        registration_service: RegistrationService,
-        write_repository: AbstractUserWriteRepository,
-    ) -> None:
-        self.registration_service = registration_service
-        self.write_repository = write_repository
+    def __init__(self, uow: AbstractUnitOfWork) -> None:
+        self._uow = uow
 
     async def execute(self, command: UserRegisterCommand) -> User:
-        """
-        Register a new user.
+        with logger.contextualize(email=command.email):
+            logger.bind(use_case=self.__class__.__name__, username=command.username).info("Starting user registration")
 
-        :raises UserAlreadyExistsException: if email or username already exists
-        :raises WeakPasswordException: if password doesn't meet requirements
-        :raises InvalidUsernameException: if username doesn't meet requirements
-        """
+            async with self._uow:
 
-        logger.info(f"Starting user registration: email={command.email}, username={command.username}")
+                read_repo = UserReadRepository(session=self._uow.session)
+                write_repo = UserWriteRepository(session=self._uow.session)
+                registration_service = RegistrationService(read_repository=read_repo)
 
-        await self.registration_service.validate_registration(
-            email=command.email,
-            username=command.username,
-            password=command.password,
-        )
-        logger.debug(f"Validation passed for user: {command.email}")
+                await registration_service.validate_registration(
+                    email=command.email,
+                    username=command.username,
+                    password=command.password,
+                )
+                logger.debug("Registration validation passed")
 
-        create_schema = self.registration_service.prepare_user_create_schema(
-            email=command.email,
-            username=command.username,
-            password=command.password,
-        )
-        logger.debug(f"User schema prepared for: {command.email}")
+                create_schema = registration_service.prepare_user_create_schema(
+                    email=command.email,
+                    username=command.username,
+                    password=command.password,
+                )
+                logger.debug("User schema prepared")
 
-        user = await self.write_repository.create(schema=create_schema)
-        logger.info(f"User registered successfully: id={user.id}, email={user.email}")
+                user = await write_repo.create(schema=create_schema)
 
-        return user
+                logger.bind(user_id=user.id).info("User entity created")
+
+                await self._uow.commit()
+                logger.info("Transaction committed successfully")
+
+                return user
