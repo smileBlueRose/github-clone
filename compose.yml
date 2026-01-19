@@ -1,8 +1,6 @@
 services:
   db:
     image: postgres:16.11-alpine
-    env_file:
-      - src/.env
     environment:
       POSTGRES_USER: ${APP_CONFIG__DB__USER}
       POSTGRES_DB: ${APP_CONFIG__DB__NAME}
