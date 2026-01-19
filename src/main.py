@@ -8,12 +8,15 @@ from flask import Flask
 from api import router as api_router
 from config import settings
 from infrastructure.database.db_helper import check_connection, db_helper
+from infrastructure.di.container import Container
 
 def create_app() -> Flask:
     app = Flask(__name__)
     app.url_map.strict_slashes = False
     app.register_blueprint(api_router)
 
+    container = Container()
+    container.wire(modules=["api.v1.auth"])
 
     return app
 app: Flask = create_app()
