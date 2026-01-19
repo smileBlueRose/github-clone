@@ -11,6 +11,7 @@ from infrastructure.database.db_helper import check_connection, db_helper
 
 def create_app() -> Flask:
     app = Flask(__name__)
+    app.url_map.strict_slashes = False
     app.register_blueprint(api_router)
 
 
