@@ -25,7 +25,13 @@ class RegistrationService(BaseService):
         username: str,
         password: str,
     ) -> None:
-        """:raises UserAlreadyExistsException:"""
+        """
+        Validate user registration data against business rules and existing records.
+
+        :raises UserAlreadyExistsException:
+        :raises WeakPasswordException:
+        :raises InvalidUsernameException:
+        """
 
         if await self._email_exists(email=email):
             raise UserAlreadyExistsException("User with this email already exists.")
@@ -59,6 +65,7 @@ class RegistrationService(BaseService):
     def _check_password_policy(self, password: str) -> None:
         """
         Checks password for compliance with business rules.
+
         :raises WeakPasswordException:
         """
 
@@ -76,6 +83,7 @@ class RegistrationService(BaseService):
     def _check_username_policy(self, username: str) -> None:
         """
         Checks username for compliance with business rules.
+
         :raises InvalidUsernameException:
         """
         if len(username) < settings.user.username.min_length:

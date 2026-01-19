@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic
+from typing import Any, Generic, TypeVar
+
 from application.ports.command import BaseCommand
-from typing import Any
 
 C = TypeVar("C", bound=BaseCommand)
 
