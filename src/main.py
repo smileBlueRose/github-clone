@@ -9,24 +9,34 @@ from api import router as api_router
 from config import settings
 from infrastructure.database.db_helper import check_connection, db_helper
 
-app = Flask(__name__)
-app.register_blueprint(api_router)
+def create_app() -> Flask:
+    app = Flask(__name__)
+    app.register_blueprint(api_router)
 
+
+    return app
+app: Flask = create_app()
 asgi_app = WsgiToAsgi(app)  # type: ignore
 
 
-def shutdown() -> None:
-    asyncio.run(db_helper.dispose())
+async def run_server() -> None:
+    await check_connection()
 
-
-atexit.register(shutdown)
-
-
-if __name__ == "__main__":
-    asyncio.run(check_connection())
-    uvicorn.run(
+    config = uvicorn.Config(
         "main:asgi_app",
         host=settings.run.host,
         port=settings.run.port,
         reload=settings.run.reload,
     )
+    server = uvicorn.Server(config)
+
+    try:
+        await server.serve()
+    finally:
+        await db_helper.dispose()
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(run_server())
+    except KeyboardInterrupt:
+        pass
