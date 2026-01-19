@@ -1,17 +1,21 @@
 from uuid import UUID
 
+from pydantic import EmailStr
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.entities.user import User
 from domain.exceptions.user import UserNotFoundException
-from domain.ports.repositories.user import AbstractUserWriteRepository
+from domain.filters.user import UserFilter
+from domain.ports.repositories.user import AbstractUserReadRepository, AbstractUserWriteRepository
 from domain.schemas.user import UserCreateSchema, UserUpdateSchema
 from infrastructure.database.models.user import UserModel
+from infrastructure.mappers.user_model_to_entity import user_model_to_entity
 
 
 class UserWriteRepository(AbstractUserWriteRepository):
     def __init__(self, session: AsyncSession) -> None:
-        self.__session = session
+        self._session = session
 
     async def create(self, schema: UserCreateSchema) -> User:
         user_model = UserModel(
@@ -19,16 +23,16 @@ class UserWriteRepository(AbstractUserWriteRepository):
             username=schema.username,
             hashed_password=schema.hashed_password,
         )
-        self.__session.add(user_model)
-        await self.__session.flush()
+        self._session.add(user_model)
+        await self._session.flush()
 
-        return self._model_to_entity(user=user_model)
+        return user_model_to_entity(user_model)
 
     async def update(self, identity: UUID, schema: UserUpdateSchema) -> User:
-        user_model: UserModel | None = await self.__session.get(UserModel, identity)
+        user_model: UserModel | None = await self._session.get(UserModel, identity)
 
         if user_model is None:
-            raise UserNotFoundException(f"User with identity={identity} not found")
+            raise UserNotFoundException(user_id=identity)
 
         if schema.username is not None:
             user_model.username = schema.username
@@ -36,26 +40,51 @@ class UserWriteRepository(AbstractUserWriteRepository):
         if schema.password_hash is not None:
             user_model.hashed_password = schema.password_hash
 
-        await self.__session.flush()
+        await self._session.flush()
 
-        return self._model_to_entity(user=user_model)
+        return user_model_to_entity(user_model)
 
     async def delete_by_identity(self, identity: UUID) -> bool:
-        user_model = await self.__session.get(UserModel, identity)
+        user_model = await self._session.get(UserModel, identity)
 
         if user_model is None:
             return False
 
-        await self.__session.delete(user_model)
-        await self.__session.flush()
+        await self._session.delete(user_model)
+        await self._session.flush()
 
         return True
 
-    def _model_to_entity(self, user: UserModel) -> User:
-        return User(
-            id=user.id,
-            email=user.email,
-            username=user.username,
-            hashed_password=user.hashed_password,
-            created_at=user.created_at,
-        )
+
+class UserReadRepository(AbstractUserReadRepository):
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
+
+    async def get_by_identity(self, identity: UUID) -> User:
+        user_model = await self._session.get(UserModel, identity)
+        if user_model is None:
+            raise UserNotFoundException(user_id=identity)
+        return user_model_to_entity(user_model)
+
+    async def get_by_email(self, email: EmailStr) -> User:
+        result = await self._session.execute(select(UserModel).where(UserModel.email == email))
+        user_model = result.scalar_one_or_none()
+
+        if user_model is None:
+            raise UserNotFoundException(email=email)
+
+        return user_model_to_entity(user_model)
+
+    async def get_by_username(self, username: str) -> User:
+        result = await self._session.execute(select(UserModel).where(UserModel.username == username))
+        user_model = result.scalar_one_or_none()
+
+        if user_model is None:
+            raise UserNotFoundException(username=username)
+
+        return user_model_to_entity(user_model)
+
+    async def get_all(self, filter_: UserFilter) -> list[User]:
+        stmt = select(UserModel)
+        result = await self._session.execute(stmt)
+        return [user_model_to_entity(i) for i in result.scalars().all()]

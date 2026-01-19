@@ -10,4 +10,5 @@ class UserCreateSchema(BaseCreateSchema):
 
 
 class UserUpdateSchema(BaseUpdateSchema):
-    pass
+    username: str | None = None
+    password_hash: str | None = None

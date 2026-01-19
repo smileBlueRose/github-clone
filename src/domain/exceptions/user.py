@@ -18,10 +18,10 @@ class UserNotFoundException(UserException, NotFoundException):
         self.email = email
         self.username = username
 
-
+# TODO: add context
 class UserAlreadyExistsException(UserException, AlreadyExistsException):
     pass
 
-
+# TODO: add context
 class InvalidUsernameException(UserException):
     pass

@@ -17,6 +17,7 @@ class UserModel(Base, UUIDMixin, CreatedAtMixin, UpdatedAtMixin):
         unique=True,
         nullable=False,
     )
+    # TODO rename it to password_hash
     hashed_password: Mapped[str] = mapped_column(
         String(length=settings.user.hashed_password.max_length),
         nullable=False,
