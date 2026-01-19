@@ -9,16 +9,22 @@ from api import router as api_router
 from config import settings
 from infrastructure.database.db_helper import check_connection, db_helper
 from infrastructure.di.container import Container
+from infrastructure.web.errors import register_error_handlers
+
 
 def create_app() -> Flask:
     app = Flask(__name__)
     app.url_map.strict_slashes = False
+
+    register_error_handlers(app)
     app.register_blueprint(api_router)
 
     container = Container()
     container.wire(modules=["api.v1.auth"])
 
     return app
+
+
 app: Flask = create_app()
 asgi_app = WsgiToAsgi(app)  # type: ignore
 
@@ -38,6 +44,7 @@ async def run_server() -> None:
         await server.serve()
     finally:
         await db_helper.dispose()
+
 
 if __name__ == "__main__":
     try:
