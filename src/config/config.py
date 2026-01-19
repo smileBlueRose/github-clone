@@ -9,6 +9,7 @@ from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 SRC_DIR = Path(__file__).parent.parent
+BASE_DIR = SRC_DIR.parent
 
 
 class RunConfig(BaseModel):
@@ -17,14 +18,19 @@ class RunConfig(BaseModel):
     reload: bool = True
 
 
-class ApiV1Confg(BaseModel):
-    prefix: str = "/v1"
-    users_prefix: str = "/users"
-
-
 class ApiConfig(BaseModel):
+    class ApiV1Confg(BaseModel):
+        prefix: str = "/v1"
+        users_prefix: str = "/users"
+
+    class AuthConfig(BaseModel):
+        prefix: str = "/auth"
+        register_prefix: str = "/register"
+        register_methods: list[str] = ["POST"]
+
     prefix: str = "/api"
     v1: ApiV1Confg = ApiV1Confg()
+    auth: AuthConfig = AuthConfig()
 
 
 class DatabaseConfig(BaseModel):
