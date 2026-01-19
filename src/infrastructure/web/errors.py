@@ -29,6 +29,7 @@ def register_error_handlers(app: Flask) -> None:
 
     @app.errorhandler(ValidationError)
     def handle_validation_error(exc: ValidationError) -> tuple[Response, int]:
+
         error_details = []
         for err in exc.errors():
             field = err["loc"][-1]
@@ -38,6 +39,7 @@ def register_error_handlers(app: Flask) -> None:
 
         formatted_msg = "\n".join(error_details)
 
+        logger.info(f"Validation failed: {formatted_msg}")
         return jsonify({"error": "Invalid input data", "details": formatted_msg}), 400
 
     @app.errorhandler(Exception)

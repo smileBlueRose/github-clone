@@ -1,5 +1,4 @@
 import asyncio
-import atexit
 
 import uvicorn
 from asgiref.wsgi import WsgiToAsgi
@@ -10,13 +9,16 @@ from config import settings
 from infrastructure.database.db_helper import check_connection, db_helper
 from infrastructure.di.container import Container
 from infrastructure.web.errors import register_error_handlers
+from infrastructure.web.setup import setup_logging_middleware
 
 
 def create_app() -> Flask:
     app = Flask(__name__)
     app.url_map.strict_slashes = False
 
+    setup_logging_middleware(app)
     register_error_handlers(app)
+
     app.register_blueprint(api_router)
 
     container = Container()
