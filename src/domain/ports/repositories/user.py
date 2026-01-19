@@ -30,7 +30,7 @@ class AbstractUserReadRepository(AbstractReadRepository[User, UUID, UserFilter])
         pass
 
 
-class AbstractUserWriteRepostiroy(AbstractWriteRepository[User, UserCreateSchema, UserUpdateSchema, UUID]):
+class AbstractUserWriteRepository(AbstractWriteRepository[User, UserCreateSchema, UserUpdateSchema, UUID]):
     @abstractmethod
     async def create(self, schema: UserCreateSchema) -> User:
         pass
