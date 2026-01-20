@@ -3,7 +3,7 @@ from config import settings
 from uuid import UUID, uuid4
 from domain.ports.entity import BaseEntity
 from pydantic import Field
-from domain.value_objects.origin import IpAddress, UserAgent
+from domain.value_objects.session import IpAddress, UserAgent
 
 
 class RefreshToken(BaseEntity):
