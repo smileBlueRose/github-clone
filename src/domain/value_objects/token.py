@@ -33,8 +33,3 @@ class AccessTokenVo(BaseModel):
 
 class RefreshTokenVo(BaseModel):
     value: str
-
-
-class TokenPair(BaseModel):
-    access: AccessTokenVo
-    refresh: RefreshTokenVo
