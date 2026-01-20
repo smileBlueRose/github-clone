@@ -112,6 +112,10 @@ class AuthConfig(BaseModel):
             "require": ("sub", "iat", "exp", "jti", "type"),
         }
 
+    class TokenHash(BaseModel):
+        algorithm: str = "sha256"
+        length: int = 64
+
     class Password(BaseModel):
         min_length: int = 8
         max_length: int = 72  # limit for brcypt algorithm
@@ -120,6 +124,7 @@ class AuthConfig(BaseModel):
         pattern: re.Pattern[str] = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$")
 
     jwt: JWT = JWT()
+    token_hash: TokenHash = TokenHash()
     password: Password = Password()
 
 
