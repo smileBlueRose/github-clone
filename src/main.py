@@ -33,7 +33,6 @@ asgi_app = WsgiToAsgi(app)  # type: ignore
 
 async def run_server() -> None:
     await check_connection()
-
     config = uvicorn.Config(
         "main:asgi_app",
         host=settings.run.host,
