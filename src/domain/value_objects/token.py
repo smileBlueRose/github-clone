@@ -35,6 +35,6 @@ class RefreshToken(BaseModel):
     value: str
 
 
-class TokensPair(BaseModel):
+class TokenPair(BaseModel):
     access: AccessToken
     refresh: RefreshToken
