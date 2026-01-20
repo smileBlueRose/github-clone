@@ -1,8 +1,10 @@
-from pydantic import EmailStr
+from pydantic import EmailStr, Field, IPvAnyAddress
 
 from application.ports.command import BaseCommand
+from config import settings
 
 
+# TODO: Add base sanitization to commands
 class UserRegisterCommand(BaseCommand):
     email: EmailStr
     username: str
@@ -12,3 +14,6 @@ class UserRegisterCommand(BaseCommand):
 class UserLoginCommand(BaseCommand):
     email: EmailStr
     password: str
+
+    ip_address: IPvAnyAddress
+    user_agent: str = Field(max_length=settings.session.ua_max_length)
