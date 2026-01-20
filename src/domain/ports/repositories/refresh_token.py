@@ -43,5 +43,5 @@ class AbstractRefreshTokenWriteRepository(
         pass
 
     @abstractmethod
-    async def revoke_all_for_user(self, user_id: UUID) -> int:
+    async def revoke_all_for_user(self, user_id: UUID) -> None:
         pass
