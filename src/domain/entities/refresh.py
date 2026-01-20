@@ -1,15 +1,17 @@
 from datetime import datetime
-from config import settings
 from uuid import UUID, uuid4
-from domain.ports.entity import BaseEntity
+
 from pydantic import Field
+
+from config import settings
+from domain.ports.entity import BaseEntity
 from domain.value_objects.session import IpAddress, UserAgent
 
 
 class RefreshToken(BaseEntity):
     id: UUID = Field(default_factory=uuid4)
     user_id: UUID
-    token: str
+    token_hash: str
     expires_at: datetime
     created_at: datetime = Field(default_factory=lambda: datetime.now(tz=settings.time.default_tz))
     is_revoked: bool = False
