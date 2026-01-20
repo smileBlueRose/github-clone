@@ -2,7 +2,7 @@ from loguru import logger
 
 from application.commands.auth import UserRegisterCommand
 from application.ports.uow import AbstractUnitOfWork
-from application.ports.user_case import AbstractUseCase
+from application.ports.use_case import AbstractUseCase
 from domain.entities.user import User
 from domain.services.auth.registration import RegistrationService
 from infrastructure.repositories.user import UserReadRepository, UserWriteRepository
