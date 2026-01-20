@@ -11,7 +11,7 @@ class CreatedAtMixin:
     def created_at(cls) -> Mapped[datetime]:
         return mapped_column(
             DateTime(timezone=True),
-            default=lambda: datetime.now(tz=settings.time.db_tz),
+            default=lambda: datetime.now(tz=settings.time.default_tz),
             nullable=False,
         )
 
@@ -22,5 +22,5 @@ class UpdatedAtMixin:
         return mapped_column(
             DateTime(timezone=True),
             nullable=True,
-            onupdate=lambda: datetime.now(tz=settings.time.db_tz),
+            onupdate=lambda: datetime.now(tz=settings.time.default_tz),
         )
