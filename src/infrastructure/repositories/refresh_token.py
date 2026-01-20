@@ -20,6 +20,7 @@ class RefreshTokenWriteRepository(AbstractRefreshTokenWriteRepository):
 
     async def create(self, schema: RefreshTokenCreateSchema) -> RefreshToken:
         model = RefreshTokenModel(
+            id=schema.id,
             user_id=schema.user_id,
             token_hash=schema.token_hash,
             expires_at=schema.expires_at,

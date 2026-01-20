@@ -5,6 +5,7 @@ from domain.ports.schemas import BaseCreateSchema, BaseUpdateSchema
 
 
 class RefreshTokenCreateSchema(BaseCreateSchema):
+    id: UUID
     user_id: UUID
     token_hash: str
     expires_at: datetime

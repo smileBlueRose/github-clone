@@ -17,7 +17,7 @@ class RegisterUserUseCase(AbstractUseCase[UserRegisterCommand]):
             logger.bind(use_case=self.__class__.__name__, username=command.username).info("Starting user registration")
 
             async with self._uow:
-
+                # TODO: I think it's not a good idea to create repositories inside the function. Think about it later
                 read_repo = UserReadRepository(session=self._uow.session)
                 write_repo = UserWriteRepository(session=self._uow.session)
                 registration_service = RegistrationService(read_repository=read_repo)
