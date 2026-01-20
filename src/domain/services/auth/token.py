@@ -7,7 +7,7 @@ from config import settings
 from domain.entities.user import User
 from domain.exceptions.auth import InvalidTokenException, TokenExpiredException
 from domain.ports.service import BaseService
-from domain.value_objects.token import AccessTokenVo, AccessTokenPayload, RefreshTokenVo, RefreshTokenPayload
+from domain.value_objects.token import AccessTokenPayload, AccessTokenVo, RefreshTokenPayload, RefreshTokenVo
 
 
 class TokenService(BaseService):
