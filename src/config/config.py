@@ -112,6 +112,17 @@ class AuthConfig(BaseModel):
             "require": ("sub", "iat", "exp", "jti", "type"),
         }
 
+        private_key_file_path: str
+        public_key_file_path: str
+
+        @property
+        def private_key(self) -> str:
+            return Path(self.private_key_file_path).read_text()
+
+        @property
+        def public_key(self) -> str:
+            return Path(self.public_key_file_path).read_text()
+
     class TokenHash(BaseModel):
         algorithm: str = "sha256"
         length: int = 64
@@ -123,7 +134,7 @@ class AuthConfig(BaseModel):
         # Passwords contains at least one: lowercase letter, uppercase letter and digit
         pattern: re.Pattern[str] = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$")
 
-    jwt: JWT = JWT()
+    jwt: JWT
     token_hash: TokenHash = TokenHash()
     password: Password = Password()
 
@@ -149,7 +160,7 @@ class Settings(BaseSettings):
     api: ApiConfig = ApiConfig()
     db: DatabaseConfig
     time: TimeConfig = TimeConfig()
-    auth: AuthConfig = AuthConfig()
+    auth: AuthConfig
     logger: Logger
     session: SessionConfig = SessionConfig()
 
