@@ -132,6 +132,11 @@ class Logger(BaseModel):
     log_level: str
 
 
+class SessionConfig(BaseModel):
+    ip_max_length: int = 45
+    ua_max_length: int = 512
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(BASE_DIR / ".env.template", BASE_DIR / ".env"),
@@ -146,6 +151,7 @@ class Settings(BaseSettings):
     time: TimeConfig = TimeConfig()
     auth: AuthConfig = AuthConfig()
     logger: Logger
+    session: SessionConfig = SessionConfig()
 
     user: UserConfig = UserConfig()
 
