@@ -9,7 +9,7 @@ from domain.entities.refresh import RefreshToken
 from domain.value_objects.session import IpAddress, UserAgent
 from infrastructure.database.mixins.timestamp import CreatedAtMixin
 from infrastructure.database.mixins.uuid import UUIDMixin
-
+from sqlalchemy import DateTime
 from .base import Base
 from .user import UserModel
 
@@ -22,7 +22,7 @@ class RefreshTokenModel(Base[RefreshToken], UUIDMixin, CreatedAtMixin):
         String(length=settings.auth.token_hash.length), unique=True, index=True, nullable=False
     )
 
-    expires_at: Mapped[datetime] = mapped_column(index=True, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True, nullable=False)
     is_revoked: Mapped[bool] = mapped_column(default=False)
 
     user_agent: Mapped[str] = mapped_column(String(length=settings.session.ua_max_length), nullable=False)
