@@ -8,9 +8,9 @@ Create Date: 2026-01-20 10:36:43.860447
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "a94dcf0ab5f9"
@@ -25,9 +25,7 @@ def upgrade() -> None:
         "refresh_tokens",
         sa.Column("token_hash", sa.String(length=64), nullable=False),
     )
-    op.add_column(
-        "refresh_tokens", sa.Column("is_revoked", sa.Boolean(), nullable=False)
-    )
+    op.add_column("refresh_tokens", sa.Column("is_revoked", sa.Boolean(), nullable=False))
     op.add_column(
         "refresh_tokens",
         sa.Column("user_agent", sa.String(length=512), nullable=False),
@@ -59,15 +57,9 @@ def downgrade() -> None:
         "refresh_tokens",
         sa.Column("jti", sa.UUID(), autoincrement=False, nullable=False),
     )
-    op.drop_index(
-        op.f("ix_refresh_tokens_user_id"), table_name="refresh_tokens"
-    )
-    op.drop_index(
-        op.f("ix_refresh_tokens_token_hash"), table_name="refresh_tokens"
-    )
-    op.create_index(
-        op.f("ix_refresh_tokens_jti"), "refresh_tokens", ["jti"], unique=False
-    )
+    op.drop_index(op.f("ix_refresh_tokens_user_id"), table_name="refresh_tokens")
+    op.drop_index(op.f("ix_refresh_tokens_token_hash"), table_name="refresh_tokens")
+    op.create_index(op.f("ix_refresh_tokens_jti"), "refresh_tokens", ["jti"], unique=False)
     op.drop_column("refresh_tokens", "id")
     op.drop_column("refresh_tokens", "ip_address")
     op.drop_column("refresh_tokens", "user_agent")
