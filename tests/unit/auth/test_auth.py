@@ -9,7 +9,7 @@ from domain.entities.user import User
 from domain.enums.token_type import TokenTypeEnum
 from domain.exceptions.auth import InvalidTokenException, TokenExpiredException
 from domain.services.auth.token import TokenService
-from domain.value_objects.token import AccessTokenVo, AccessTokenPayload, RefreshTokenVo
+from domain.value_objects.token import AccessTokenPayload, AccessTokenVo, RefreshTokenVo
 
 LIFETIME = 3600
 
