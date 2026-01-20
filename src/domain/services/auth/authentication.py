@@ -10,7 +10,7 @@ from domain.value_objects.auth import LoginCredentials
 from domain.value_objects.token import AccessTokenVo, RefreshTokenVo
 
 
-class AuthService(BaseService):
+class AuthenticationService(BaseService):
     def __init__(self, token_service: TokenService, user_read_repository: AbstractUserReadRepository) -> None:
         self._token_service = token_service
         self._read_repository = user_read_repository
