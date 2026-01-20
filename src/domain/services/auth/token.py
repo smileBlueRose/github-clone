@@ -1,3 +1,4 @@
+import hashlib
 from datetime import UTC, datetime
 from uuid import uuid4
 
@@ -139,3 +140,19 @@ class TokenService(BaseService):
             raise TokenExpiredException("Refresh token has expired.") from e
         except (jwt.PyJWTError, ValueError) as e:
             raise InvalidTokenException("Invalid refresh token.") from e
+
+    # ================
+    # ==== COMMON ====
+    # ================
+    @staticmethod
+    def hash_token(token: str) -> str:
+        """:raises ValueError:"""
+
+        algorithm: str = settings.auth.token_hash.algorithm
+
+        if algorithm == "sha256":
+            return hashlib.sha256(token.encode("utf-8")).hexdigest()
+        elif algorithm == "sha512":
+            return hashlib.sha512(token.encode("utf-8")).hexdigest()
+        else:
+            raise ValueError(f"Unsupported hash algorithm: {algorithm}. Use 'sha256' or 'sha512'")
