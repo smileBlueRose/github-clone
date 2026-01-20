@@ -10,7 +10,6 @@ from domain.filters.user import UserFilter
 from domain.ports.repositories.user import AbstractUserReadRepository, AbstractUserWriteRepository
 from domain.schemas.user import UserCreateSchema, UserUpdateSchema
 from infrastructure.database.models.user import UserModel
-from infrastructure.mappers.user_model_to_entity import user_model_to_entity
 
 
 class UserWriteRepository(AbstractUserWriteRepository):
@@ -26,7 +25,7 @@ class UserWriteRepository(AbstractUserWriteRepository):
         self._session.add(user_model)
         await self._session.flush()
 
-        return user_model_to_entity(user_model)
+        return user_model.to_entity()
 
     async def update(self, identity: UUID, schema: UserUpdateSchema) -> User:
         user_model: UserModel | None = await self._session.get(UserModel, identity)
@@ -42,7 +41,7 @@ class UserWriteRepository(AbstractUserWriteRepository):
 
         await self._session.flush()
 
-        return user_model_to_entity(user_model)
+        return user_model.to_entity()
 
     async def delete_by_identity(self, identity: UUID) -> bool:
         user_model = await self._session.get(UserModel, identity)
@@ -64,7 +63,7 @@ class UserReadRepository(AbstractUserReadRepository):
         user_model = await self._session.get(UserModel, identity)
         if user_model is None:
             raise UserNotFoundException(user_id=identity)
-        return user_model_to_entity(user_model)
+        return user_model.to_entity()
 
     async def get_by_email(self, email: EmailStr) -> User:
         result = await self._session.execute(select(UserModel).where(UserModel.email == email))
@@ -73,7 +72,7 @@ class UserReadRepository(AbstractUserReadRepository):
         if user_model is None:
             raise UserNotFoundException(email=email)
 
-        return user_model_to_entity(user_model)
+        return user_model.to_entity()
 
     async def get_by_username(self, username: str) -> User:
         result = await self._session.execute(select(UserModel).where(UserModel.username == username))
@@ -82,9 +81,9 @@ class UserReadRepository(AbstractUserReadRepository):
         if user_model is None:
             raise UserNotFoundException(username=username)
 
-        return user_model_to_entity(user_model)
+        return user_model.to_entity()
 
     async def get_all(self, filter_: UserFilter) -> list[User]:
         stmt = select(UserModel)
         result = await self._session.execute(stmt)
-        return [user_model_to_entity(i) for i in result.scalars().all()]
+        return [i.to_entity() for i in result.scalars().all()]
