@@ -27,3 +27,10 @@ class WeakPasswordException(AuthException):
     @classmethod
     def weak_pattern(cls) -> Self:
         return cls("Password must contain at least one digit, upper and lower case letters")
+
+
+class InvalidCredentialsException(AuthException):
+    def __init__(self, *, fields: list[str] | None = None) -> None:
+        if fields is None:
+            fields = ["email", "password"]
+        super().__init__(f"Invalid {' or '.join(fields)}")
