@@ -1,12 +1,16 @@
 import logging
 import uuid
+from typing import TYPE_CHECKING
 
 from flask import Flask, Response, g, has_app_context, request
-from loguru import Record, logger
+from loguru import logger
+
+if TYPE_CHECKING:
+    from loguru import Record
 
 
 def setup_logging_middleware(app: Flask) -> None:
-    def patch_record(record: Record) -> None:
+    def patch_record(record: "Record") -> None:
         if has_app_context():
             request_id = getattr(g, "request_id", None)
             if request_id:
