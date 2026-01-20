@@ -2,7 +2,6 @@ from datetime import UTC, datetime
 from uuid import uuid4
 
 import jwt
-from loguru import logger
 
 from config import settings
 from domain.entities.user import User
@@ -79,10 +78,8 @@ class TokenService(BaseService):
         try:
             return self._verify_access(token)
         except jwt.ExpiredSignatureError as e:
-            logger.exception(e)
             raise TokenExpiredException("Access token has expired.") from e
         except (jwt.PyJWTError, ValueError) as e:
-            logger.exception(e)
             raise InvalidTokenException("Invalid access token.") from e
 
     # =================
@@ -139,8 +136,6 @@ class TokenService(BaseService):
         try:
             return self._verify_refresh(token)
         except jwt.ExpiredSignatureError as e:
-            logger.exception(e)
             raise TokenExpiredException("Refresh token has expired.") from e
         except (jwt.PyJWTError, ValueError) as e:
-            logger.exception(e)
             raise InvalidTokenException("Invalid refresh token.") from e
