@@ -7,7 +7,7 @@ from config import settings
 from domain.entities.user import User
 from domain.exceptions.auth import InvalidTokenException, TokenExpiredException
 from domain.ports.service import BaseService
-from domain.value_objects.token import AccessToken, AccessTokenPayload, RefreshToken, RefreshTokenPayload
+from domain.value_objects.token import AccessTokenVo, AccessTokenPayload, RefreshTokenVo, RefreshTokenPayload
 
 
 class TokenService(BaseService):
@@ -26,7 +26,7 @@ class TokenService(BaseService):
     # ================
     # ==== ACCESS ====
     # ================
-    def generate_access(self, user: User) -> AccessToken:
+    def generate_access(self, user: User) -> AccessTokenVo:
         """Generate a new access token for a user."""
         issued_at = int(datetime.now(UTC).timestamp())
         expires_at = issued_at + self.access_token_lifetime
@@ -42,9 +42,9 @@ class TokenService(BaseService):
             key=self.__private_key,
             algorithm=settings.auth.jwt.algorithm,
         )
-        return AccessToken(value=token)
+        return AccessTokenVo(value=token)
 
-    def _verify_access(self, token: AccessToken) -> AccessTokenPayload:
+    def _verify_access(self, token: AccessTokenVo) -> AccessTokenPayload:
         """
         Verify access token and return its payload.
 
@@ -68,7 +68,7 @@ class TokenService(BaseService):
             type=payload["type"],
         )
 
-    def verify_access(self, token: AccessToken) -> AccessTokenPayload:
+    def verify_access(self, token: AccessTokenVo) -> AccessTokenPayload:
         """
         Verify access token and return its payload.
 
@@ -85,7 +85,7 @@ class TokenService(BaseService):
     # =================
     # ==== REFRESH ====
     # =================
-    def generate_refresh(self, user: User) -> RefreshToken:
+    def generate_refresh(self, user: User) -> RefreshTokenVo:
         """Generate a new refresh token for a user."""
         issued_at = int(datetime.now(UTC).timestamp())
         expires_at = issued_at + self.refresh_token_lifetime
@@ -101,9 +101,9 @@ class TokenService(BaseService):
             key=self.__private_key,
             algorithm=settings.auth.jwt.algorithm,
         )
-        return RefreshToken(value=token)
+        return RefreshTokenVo(value=token)
 
-    def _verify_refresh(self, token: RefreshToken) -> RefreshTokenPayload:
+    def _verify_refresh(self, token: RefreshTokenVo) -> RefreshTokenPayload:
         """
         Verify refresh token and return its payload.
 
@@ -127,7 +127,7 @@ class TokenService(BaseService):
             type=payload["type"],
         )
 
-    def verify_refresh(self, token: RefreshToken) -> RefreshTokenPayload:
+    def verify_refresh(self, token: RefreshTokenVo) -> RefreshTokenPayload:
         """
         Verify refresh token and return its payload.
         :raises TokenExpiredException:

@@ -27,14 +27,14 @@ class RefreshTokenPayload(BaseModel):
     type: Literal[TokenTypeEnum.REFRESH] = TokenTypeEnum.REFRESH
 
 
-class AccessToken(BaseModel):
+class AccessTokenVo(BaseModel):
     value: str
 
 
-class RefreshToken(BaseModel):
+class RefreshTokenVo(BaseModel):
     value: str
 
 
 class TokenPair(BaseModel):
-    access: AccessToken
-    refresh: RefreshToken
+    access: AccessTokenVo
+    refresh: RefreshTokenVo

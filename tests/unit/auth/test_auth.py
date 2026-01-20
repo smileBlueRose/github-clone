@@ -9,7 +9,7 @@ from domain.entities.user import User
 from domain.enums.token_type import TokenTypeEnum
 from domain.exceptions.auth import InvalidTokenException, TokenExpiredException
 from domain.services.auth.token import TokenService
-from domain.value_objects.token import AccessToken, AccessTokenPayload, RefreshToken
+from domain.value_objects.token import AccessTokenVo, AccessTokenPayload, RefreshTokenVo
 
 LIFETIME = 3600
 
@@ -52,7 +52,7 @@ def test_verify_access_expired(token_service: TokenService, user: User) -> None:
 
 def test_verify_access_with_incorrect_token(token_service: TokenService, user: User) -> None:
     token = token_service.generate_access(user)
-    invalid_token = AccessToken(value=token.value + "garbage")
+    invalid_token = AccessTokenVo(value=token.value + "garbage")
 
     with pytest.raises(InvalidTokenException):
         token_service.verify_access(invalid_token)
@@ -83,7 +83,7 @@ def test_verify_access_without_required_field(token_service: TokenService, user:
             algorithm=settings.auth.jwt.algorithm,
         )
         with pytest.raises(InvalidTokenException):
-            token_service.verify_access(AccessToken(value=bad_token_value))
+            token_service.verify_access(AccessTokenVo(value=bad_token_value))
 
 
 # =================
@@ -108,7 +108,7 @@ def test_verify_refresh_expired(token_service: TokenService, user: User) -> None
 
 def test_verify_refresh_with_incorrect_token(token_service: TokenService, user: User) -> None:
     token = token_service.generate_refresh(user)
-    invalid_token = RefreshToken(value=token.value + "garbage")
+    invalid_token = RefreshTokenVo(value=token.value + "garbage")
 
     with pytest.raises(InvalidTokenException):
         token_service.verify_refresh(invalid_token)
@@ -138,7 +138,7 @@ def test_verify_refresh_without_required_field(token_service: TokenService, user
             algorithm=settings.auth.jwt.algorithm,
         )
         with pytest.raises(InvalidTokenException):
-            token_service.verify_refresh(RefreshToken(value=bad_token_value))
+            token_service.verify_refresh(RefreshTokenVo(value=bad_token_value))
 
 
 def test_cross_token_verification_fail(token_service: TokenService, user: User) -> None:
@@ -147,8 +147,8 @@ def test_cross_token_verification_fail(token_service: TokenService, user: User) 
 
     # Access should not pass verification as Refresh
     with pytest.raises(InvalidTokenException):
-        token_service.verify_refresh(RefreshToken(value=access_token.value))
+        token_service.verify_refresh(RefreshTokenVo(value=access_token.value))
 
     # Refresh should not pass verification as Access
     with pytest.raises(InvalidTokenException):
-        token_service.verify_access(AccessToken(value=refresh_token.value))
+        token_service.verify_access(AccessTokenVo(value=refresh_token.value))
