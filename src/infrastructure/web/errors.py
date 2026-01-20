@@ -3,13 +3,14 @@ from loguru import logger
 from pydantic import ValidationError
 
 from domain.exceptions import CustomException
-from domain.exceptions.auth import WeakPasswordException
+from domain.exceptions.auth import InvalidCredentialsException, WeakPasswordException
 from domain.exceptions.user import InvalidUsernameException, UserAlreadyExistsException
 
 ERROR_MAP: dict[type, tuple[str, int]] = {
     UserAlreadyExistsException: ("User with this data already exists", 409),
     WeakPasswordException: ("Password is too weak", 400),
     InvalidUsernameException: ("Invalid username format", 400),
+    InvalidCredentialsException: ("Invalid credentials", 401),
 }
 
 

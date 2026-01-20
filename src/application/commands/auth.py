@@ -15,5 +15,5 @@ class UserLoginCommand(BaseCommand):
     email: EmailStr
     password: str
 
-    ip_address: IPvAnyAddress
-    user_agent: str = Field(max_length=settings.session.ua_max_length)
+    ip_address: IPvAnyAddress | None = None
+    user_agent: str | None = Field(default=None, max_length=settings.session.ua_max_length)

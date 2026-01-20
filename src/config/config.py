@@ -23,10 +23,14 @@ class ApiConfig(BaseModel):
         prefix: str = "/v1"
         users_prefix: str = "/users"
 
+    # TODO: It's not a good structure. Late it will grow fast and become really big & complicated. Refactor it
     class AuthConfig(BaseModel):
         prefix: str = "/auth"
         register_prefix: str = "/register"
         register_methods: list[str] = ["POST"]
+
+        login_prefix: str = "/login"
+        login_methods: list[str] = ["POST"]
 
     prefix: str = "/api"
     v1: ApiV1Confg = ApiV1Confg()
