@@ -17,3 +17,9 @@ class RefreshTokenNotFoundException(RefreshTokenException, NotFoundException):
         else:
             self.message = "Refresh token not found"
         super().__init__(self.message)
+
+
+class RefreshTokenAlreadyRevokedException(RefreshTokenException):
+    def __init__(self) -> None:
+        message = "Refresh token is already revoked"
+        super().__init__(message)
