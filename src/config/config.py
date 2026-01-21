@@ -14,14 +14,15 @@ SRC_DIR = Path(__file__).parent.parent
 BASE_DIR = SRC_DIR.parent
 TEMPLATE_ENV = BASE_DIR / ".env.template"
 
-environment = os.getenv('ENV',  None)
+environment = os.getenv("ENV", None)
 
-if environment == 'default':
+if environment == "default":
     env_file = BASE_DIR / ".env"
 elif environment:
     env_file = BASE_DIR / f".env.{environment}"
 else:
     raise ValueError("ENV environment variable is not set. Use 'default', 'dev', 'test', etc.")
+
 
 class RunConfig(BaseModel):
     host: str = "127.0.0.1"

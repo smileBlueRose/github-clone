@@ -4,8 +4,10 @@ from dependency_injector.wiring import Provide, inject
 from flask import Blueprint, Response, jsonify, request
 from pydantic import IPvAnyAddress
 
-from application.commands.auth import UserLoginCommand, UserRegisterCommand
+from api.exceptions.api import MissingCookiesException
+from application.commands.auth import RefreshTokensCommand, UserLoginCommand, UserRegisterCommand
 from application.use_cases.login_user import LoginUserUseCase
+from application.use_cases.refresh_tokens import RefreshTokensUseCase
 from application.use_cases.register_user import RegisterUserUseCase
 from config import settings
 from infrastructure.di.container import Container
@@ -44,6 +46,31 @@ async def login(use_case: LoginUserUseCase = Provide[Container.use_cases.login_u
         user_agent=request.headers.get("User-Agent", "Unkown"),
     )
     access, refresh = await use_case.execute(command=command)
+
+    return (
+        jsonify(
+            {
+                "access": access.value,
+                "refresh": refresh.value,
+            }
+        ),
+        200,
+    )
+
+
+@auth_router.route(settings.api.auth.refresh_prefix, methods=settings.api.auth.refresh_methods)
+@inject
+async def refresh(use_case: RefreshTokensUseCase = Provide[Container.use_cases.refresh_tokens]) -> tuple[Response, int]:
+    token: str | None = request.cookies.get("refresh_token")
+    if not token:
+        raise MissingCookiesException("Refresh token not found in cookies")
+
+    command = RefreshTokensCommand(
+        refresh_token=token,
+        ip_address=cast(IPvAnyAddress | None, request.remote_addr),
+        user_agent=request.headers.get("User-Agent", "Unkown"),
+    )
+    access, refresh = await use_case.execute(command)
 
     return (
         jsonify(

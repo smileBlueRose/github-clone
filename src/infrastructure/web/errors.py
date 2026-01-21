@@ -2,8 +2,10 @@ from flask import Flask, Response, jsonify
 from loguru import logger
 from pydantic import ValidationError
 
+from api.exceptions.api import ApiException
 from domain.exceptions import CustomException
 from domain.exceptions.auth import InvalidCredentialsException, WeakPasswordException
+from domain.exceptions.refresh_token import RefreshTokenAlreadyRevokedException
 from domain.exceptions.user import InvalidUsernameException, UserAlreadyExistsException
 
 ERROR_MAP: dict[type, tuple[str, int]] = {
@@ -11,10 +13,16 @@ ERROR_MAP: dict[type, tuple[str, int]] = {
     WeakPasswordException: ("Password is too weak", 400),
     InvalidUsernameException: ("Invalid username format", 400),
     InvalidCredentialsException: ("Invalid credentials", 401),
+    RefreshTokenAlreadyRevokedException: ("Refresh token is already revoked", 400),
 }
 
 
 def register_error_handlers(app: Flask) -> None:
+
+    @app.errorhandler(ApiException)
+    def handle_api_error(exc: ApiException) -> tuple[Response, int]:
+        logger.info(f"API error: {exc.message}")
+        return jsonify({"error": exc.message}), exc.status_code
 
     @app.errorhandler(CustomException)
     def handle_custom_error(exc: CustomException) -> tuple[Response, int]:
