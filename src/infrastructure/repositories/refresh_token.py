@@ -54,12 +54,9 @@ class RefreshTokenWriteRepository(AbstractRefreshTokenWriteRepository):
 
         return True
 
-    async def revoke_by_hash(self, token_hash: str) -> bool:
-        stmt = select(RefreshTokenModel).where(RefreshTokenModel.token_hash == token_hash)
-        result = await self._session.execute(stmt)
-        model = result.scalar_one_or_none()
-
-        if not model:
+    async def revoke_by_identity(self, identity: UUID) -> bool:
+        model = await self._session.get(RefreshTokenModel, identity)
+        if model is None:
             return False
 
         model.is_revoked = True

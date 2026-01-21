@@ -15,6 +15,7 @@ class AuthenticationService(BaseService):
         self._token_service = token_service
         self._read_repository = user_read_repository
 
+    # TODO: revoke previous token with the same user_id + user_agent
     async def login(self, credentials: LoginCredentials) -> tuple[AccessTokenVo, RefreshTokenVo]:
         """:raises InvalidCredentialsException:"""
 

@@ -39,7 +39,7 @@ class AbstractRefreshTokenWriteRepository(
         pass
 
     @abstractmethod
-    async def revoke_by_hash(self, token_hash: str) -> bool:
+    async def revoke_by_identity(self, identity: UUID) -> bool:
         pass
 
     @abstractmethod
