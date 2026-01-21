@@ -7,7 +7,7 @@ from .config import settings
 
 
 def format_record(record: Mapping[str, Any]) -> str:
-    fmt = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level:<8}</level> | <level>{message}</level>"
+    fmt = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level:<8}</level> | <level>{message}</level>"
     if record["extra"]:
         fmt += " | <magenta>{extra}</magenta>"
     return fmt + "\n"
