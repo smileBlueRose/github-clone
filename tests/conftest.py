@@ -74,7 +74,7 @@ def user() -> User:
         id=uuid4(),
         email="test@example.com",
         username="scarlet-scarf",
-        hashed_password="$2b$12$6rEUV1t6EHbC.HnelrKE9OntR1MUITbOJqteguORQ0un0CIRu/EzS",
+        password_hash="$2b$12$6rEUV1t6EHbC.HnelrKE9OntR1MUITbOJqteguORQ0un0CIRu/EzS",
     )
 
 
