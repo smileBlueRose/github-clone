@@ -43,3 +43,12 @@ class InvalidUsernameException(UserException):
     @classmethod
     def too_long(cls, max_len: int) -> Self:
         return cls(f"Username must not exceed {max_len} characters.")
+
+
+class UserInactiveException(UserException):
+    def __init__(self, *, user_id: UUID | None = None) -> None:
+        message = "The user is inactive"
+        if user_id:
+            message = f"The user with id '{user_id}' is inactive"
+
+        super().__init__(message)
