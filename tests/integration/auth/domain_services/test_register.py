@@ -56,7 +56,7 @@ class TestRegistrationService:
         schema = self.service(session).prepare_user_create_schema(**asdict(self.data))
         assert schema.email == self.data.email
         assert schema.username == self.data.username
-        assert bcrypt.checkpw(self.data.password.encode(), schema.hashed_password.encode())
+        assert bcrypt.checkpw(self.data.password.encode(), schema.password_hash.encode())
 
     async def test_email_exists(self, session: AsyncSession) -> None:
         await create_user_model(session=session, email=self.data.email)

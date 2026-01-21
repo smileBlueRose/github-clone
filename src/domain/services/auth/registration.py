@@ -44,7 +44,7 @@ class RegistrationService(BaseService):
 
     def prepare_user_create_schema(self, email: EmailStr, username: str, password: str) -> UserCreateSchema:
         hashed_password = self._hash_password(password=password)
-        return UserCreateSchema(email=email, username=username, hashed_password=hashed_password)
+        return UserCreateSchema(email=email, username=username, password_hash=hashed_password)
 
     async def _email_exists(self, email: EmailStr) -> bool:
         """Check if a user exists by their email address."""

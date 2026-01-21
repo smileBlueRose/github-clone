@@ -6,7 +6,7 @@ from domain.ports.schemas import BaseCreateSchema, BaseUpdateSchema
 class UserCreateSchema(BaseCreateSchema):
     email: EmailStr
     username: str
-    hashed_password: str
+    password_hash: str
 
 
 class UserUpdateSchema(BaseUpdateSchema):

@@ -20,7 +20,7 @@ class UserWriteRepository(AbstractUserWriteRepository):
         user_model = UserModel(
             email=schema.email,
             username=schema.username,
-            hashed_password=schema.hashed_password,
+            password_hash=schema.password_hash,
         )
         self._session.add(user_model)
         await self._session.flush()
