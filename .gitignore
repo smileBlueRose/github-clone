@@ -224,3 +224,4 @@ db_password.txt
 .vscode/
 
 *.sql
+test.py
