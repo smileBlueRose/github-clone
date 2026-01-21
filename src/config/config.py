@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote_plus
 
+from loguru import logger
 from pydantic import BaseModel, PostgresDsn
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -59,10 +60,15 @@ class DatabaseConfig(BaseModel):
     }
 
     def read_db_password(self) -> str:
+        if not self.password_file:
+            logger.warning("Password file not provided")
+            return ""
+
         try:
             return Path(self.password_file).read_text().strip()
-        except FileNotFoundError as e:
-            raise ValueError(f"Password file not found at {self.password_file}") from e
+        except FileNotFoundError:
+            logger.warning(f"Password file not found at {self.password_file}")
+            return ""
 
     @property
     def url(self) -> PostgresDsn:
@@ -172,4 +178,5 @@ class Settings(BaseSettings):
     user: UserConfig = UserConfig()
 
 
+logger.info(f"Using .env.{os.getenv('ENV', 'dev')}")
 settings = Settings()  # type: ignore
