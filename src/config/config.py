@@ -12,7 +12,16 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 SRC_DIR = Path(__file__).parent.parent
 BASE_DIR = SRC_DIR.parent
+TEMPLATE_ENV = BASE_DIR / ".env.template"
 
+environment = os.getenv('ENV',  None)
+
+if environment == 'default':
+    env_file = BASE_DIR / ".env"
+elif environment:
+    env_file = BASE_DIR / f".env.{environment}"
+else:
+    raise ValueError("ENV environment variable is not set. Use 'default', 'dev', 'test', etc.")
 
 class RunConfig(BaseModel):
     host: str = "127.0.0.1"
@@ -33,6 +42,9 @@ class ApiConfig(BaseModel):
 
         login_prefix: str = "/login"
         login_methods: list[str] = ["POST"]
+
+        refresh_prefix: str = "/refresh"
+        refresh_methods: list[str] = ["POST"]
 
     prefix: str = "/api"
     v1: ApiV1Confg = ApiV1Confg()
@@ -161,7 +173,7 @@ class SessionConfig(BaseModel):
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=(BASE_DIR / ".env.template", BASE_DIR / f".env.{os.getenv('ENV', 'dev')}"),
+        env_file=(TEMPLATE_ENV, env_file),
         case_sensitive=False,
         env_nested_delimiter="__",
         env_prefix="APP_CONFIG__",
@@ -178,5 +190,5 @@ class Settings(BaseSettings):
     user: UserConfig = UserConfig()
 
 
-logger.info(f"Using .env.{os.getenv('ENV', 'dev')}")
+logger.info(f"Using {env_file}")
 settings = Settings()  # type: ignore
