@@ -8,11 +8,27 @@ class AuthException(CustomException):
 
 
 class InvalidTokenException(AuthException):
-    pass
+    @classmethod
+    def invalid_access(cls) -> Self:
+        return cls("Invalid access token")
+
+    @classmethod
+    def invalid_refresh(cls) -> Self:
+        return cls("Invalid refresh token")
+
+    @classmethod
+    def hash_mismatch(cls) -> Self:
+        return cls("Token hash mismatch")
 
 
 class TokenExpiredException(InvalidTokenException):
-    pass
+    @classmethod
+    def access_expired(cls) -> Self:
+        return cls("Access token has expired")
+
+    @classmethod
+    def refresh_expired(cls) -> Self:
+        return cls("Refresh token has expired")
 
 
 class WeakPasswordException(AuthException):

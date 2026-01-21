@@ -79,9 +79,9 @@ class TokenService(BaseService):
         try:
             return self._verify_access(token)
         except jwt.ExpiredSignatureError as e:
-            raise TokenExpiredException("Access token has expired.") from e
+            raise TokenExpiredException.access_expired() from e
         except (jwt.PyJWTError, ValueError) as e:
-            raise InvalidTokenException("Invalid access token.") from e
+            raise InvalidTokenException.invalid_access() from e
 
     # =================
     # ==== REFRESH ====
@@ -137,9 +137,9 @@ class TokenService(BaseService):
         try:
             return self._verify_refresh(token)
         except jwt.ExpiredSignatureError as e:
-            raise TokenExpiredException("Refresh token has expired.") from e
+            raise TokenExpiredException.refresh_expired() from e
         except (jwt.PyJWTError, ValueError) as e:
-            raise InvalidTokenException("Invalid refresh token.") from e
+            raise InvalidTokenException.invalid_refresh() from e
 
     # ================
     # ==== COMMON ====
