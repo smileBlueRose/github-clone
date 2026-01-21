@@ -85,3 +85,6 @@ github-clone/
 ├── compose.yml
 └── pyproject.toml
 ```
+
+## Postman documentation:
+### [Link to collection](https://starthub-4052.postman.co/workspace/My-Workspace~479f13d7-0f5c-4e1b-884a-66da29cd1ea3/collection/43041877-55ec369d-232f-4fe8-9da0-0647f156f39f?action=share&creator=43041877)
