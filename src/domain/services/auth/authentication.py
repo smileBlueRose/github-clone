@@ -33,7 +33,7 @@ class AuthenticationService(BaseService):
         except UserNotFoundException as e:
             raise InvalidCredentialsException() from e
 
-        if not self.check_password(password=credentials.password, hashed_password=user.hashed_password):
+        if not self.check_password(password=credentials.password, hashed_password=user.password_hash):
             raise InvalidCredentialsException()
 
         return user

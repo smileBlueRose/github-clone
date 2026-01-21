@@ -14,7 +14,7 @@ class User(BaseEntity):
         min_length=settings.user.username.min_length,
         max_length=settings.user.username.max_length,
     )
-    hashed_password: str
+    password_hash: str
     is_active: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(tz=settings.time.default_tz))
     updated_at: datetime | None = None

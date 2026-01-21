@@ -37,7 +37,7 @@ class UserWriteRepository(AbstractUserWriteRepository):
             user_model.username = schema.username
 
         if schema.password_hash is not None:
-            user_model.hashed_password = schema.password_hash
+            user_model.password_hash = schema.password_hash
 
         await self._session.flush()
 

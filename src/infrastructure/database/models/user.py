@@ -18,8 +18,7 @@ class UserModel(Base[User], UUIDMixin, CreatedAtMixin, UpdatedAtMixin):
         unique=True,
         nullable=False,
     )
-    # TODO rename it to password_hash
-    hashed_password: Mapped[str] = mapped_column(
+    password_hash: Mapped[str] = mapped_column(
         String(length=settings.user.hashed_password.max_length),
         nullable=False,
     )
@@ -30,6 +29,6 @@ class UserModel(Base[User], UUIDMixin, CreatedAtMixin, UpdatedAtMixin):
             id=self.id,
             email=self.email,
             username=self.username,
-            hashed_password=self.hashed_password,
+            password_hash=self.password_hash,
             created_at=self.created_at,
         )
