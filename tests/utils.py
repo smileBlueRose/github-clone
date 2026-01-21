@@ -1,11 +1,16 @@
 from typing import Any
 
+import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructure.database.models.user import UserModel
 
 
 async def create_user_model(session: AsyncSession, **kwargs: Any) -> UserModel:
+    if "password" in kwargs:
+        password = kwargs.pop("password")
+        kwargs["hashed_password"] = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
     defaults = {
         "email": "test@example.com",
         "username": "ScarletScarf",
