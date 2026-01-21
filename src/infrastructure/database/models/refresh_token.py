@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from config import settings
@@ -9,7 +9,7 @@ from domain.entities.refresh import RefreshToken
 from domain.value_objects.session import IpAddress, UserAgent
 from infrastructure.database.mixins.timestamp import CreatedAtMixin
 from infrastructure.database.mixins.uuid import UUIDMixin
-from sqlalchemy import DateTime
+
 from .base import Base
 from .user import UserModel
 
