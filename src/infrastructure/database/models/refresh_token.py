@@ -25,8 +25,8 @@ class RefreshTokenModel(Base[RefreshToken], UUIDMixin, CreatedAtMixin):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True, nullable=False)
     is_revoked: Mapped[bool] = mapped_column(default=False)
 
-    user_agent: Mapped[str] = mapped_column(String(length=settings.session.ua_max_length), nullable=False)
-    ip_address: Mapped[str] = mapped_column(String(length=settings.session.ip_max_length), nullable=False)
+    user_agent: Mapped[str] = mapped_column(String(length=settings.session.ua_max_length), nullable=True)
+    ip_address: Mapped[str] = mapped_column(String(length=settings.session.ip_max_length), nullable=True)
 
     def to_entity(self) -> RefreshToken:
         return RefreshToken(
