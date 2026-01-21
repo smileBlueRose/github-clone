@@ -120,13 +120,7 @@ class TokenService(BaseService):
             options=settings.auth.jwt.refresh_decode_options,
         )
 
-        return RefreshTokenPayload(
-            sub=payload["sub"],
-            iat=payload["iat"],
-            exp=payload["exp"],
-            jti=payload["jti"],
-            type=payload["type"],
-        )
+        return self._payload_dict_to_refresh_payload(payload)
 
     def verify_refresh(self, token: RefreshTokenVo) -> RefreshTokenPayload:
         """
@@ -141,6 +135,16 @@ class TokenService(BaseService):
         except (jwt.PyJWTError, ValueError) as e:
             raise InvalidTokenException.invalid_refresh() from e
 
+    @staticmethod
+    def _payload_dict_to_refresh_payload(payload: dict[str, Any]) -> RefreshTokenPayload:
+        """Convert JWT payload dictionary to RefreshTokenPayload object."""
+        return RefreshTokenPayload(
+            sub=payload["sub"],
+            iat=payload["iat"],
+            exp=payload["exp"],
+            jti=payload["jti"],
+            type=payload["type"],
+        )
     # ================
     # ==== COMMON ====
     # ================
