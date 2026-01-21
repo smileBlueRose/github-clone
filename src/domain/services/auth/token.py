@@ -1,5 +1,6 @@
 import hashlib
 from datetime import UTC, datetime
+from typing import Any
 from uuid import uuid4
 
 import jwt
@@ -134,6 +135,31 @@ class TokenService(BaseService):
             raise TokenExpiredException.refresh_expired() from e
         except (jwt.PyJWTError, ValueError) as e:
             raise InvalidTokenException.invalid_refresh() from e
+
+    def parse_refresh_without_verification(self, token: RefreshTokenVo) -> RefreshTokenPayload:
+        """
+        Parse refresh token payload WITHOUT cryptographic verification.
+
+        WARNING: This method skips signature verification for performance reasons.
+        Use ONLY when you are 100% certain the token is valid.
+
+        Valid use cases:
+        1. You need the payload from a token you just generated (e.g., after generate_refresh()
+        to extract jti, iat, exp for database storage)
+        2. Token comes from a trusted internal source where verification is unnecessary
+
+        NEVER use this method on tokens from untrusted sources or user input.
+
+        This method assumes the token is well-formed. Errors like PyJWTError or KeyError
+        are NOT handled and will propagate, as they indicate programmer error.
+        """
+        payload = jwt.decode(
+            token.value,
+            key=self.public_key,
+            algorithms=[settings.auth.jwt.algorithm],
+            options={**settings.auth.jwt.refresh_decode_options, "verify_signature": False},
+        )
+        return self._payload_dict_to_refresh_payload(payload)
 
     @staticmethod
     def _payload_dict_to_refresh_payload(payload: dict[str, Any]) -> RefreshTokenPayload:
