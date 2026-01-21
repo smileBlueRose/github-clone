@@ -171,6 +171,7 @@ class TokenService(BaseService):
             jti=payload["jti"],
             type=payload["type"],
         )
+
     # ================
     # ==== COMMON ====
     # ================
@@ -186,3 +187,11 @@ class TokenService(BaseService):
             return hashlib.sha512(token.encode("utf-8")).hexdigest()
         else:
             raise ValueError(f"Unsupported hash algorithm: {algorithm}. Use 'sha256' or 'sha512'")
+
+    @staticmethod
+    def verify_token_hash(token: RefreshTokenVo, expected_hash: str) -> None:
+        """raises InvalidTokenException if hash doesn't match"""
+
+        actual_hash = TokenService.hash_token(token.value)
+        if actual_hash != expected_hash:
+            raise InvalidTokenException.hash_mismatch()
