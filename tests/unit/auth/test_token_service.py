@@ -1,4 +1,4 @@
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from uuid import UUID
 
 import jwt
@@ -152,3 +152,39 @@ def test_cross_token_verification_fail(token_service: TokenService, user: User) 
     # Refresh should not pass verification as Access
     with pytest.raises(InvalidTokenException):
         token_service.verify_access(AccessTokenVo(value=refresh_token.value))
+
+
+# ========================
+# ==== HASH & PARSING ====
+# ========================
+def test_parse_refresh_without_verification(token_service: TokenService, user: User) -> None:
+    token = token_service.generate_refresh(user)
+    payload = token_service.parse_refresh_without_verification(token)
+
+    assert payload.sub == user.id
+    assert isinstance(payload.jti, UUID)
+    assert payload.type == TokenTypeEnum.REFRESH
+
+
+@pytest.mark.parametrize("algorithm", ["sha256", "sha512"])
+def test_hash_token_and_verify_success(token_service: TokenService, algorithm: str) -> None:
+    with patch("config.settings.auth.token_hash.algorithm", algorithm):
+        token = RefreshTokenVo(value="some_secret_token_value")
+        hashed = token_service.hash_token(token.value)
+
+        # Should not raise
+        token_service.verify_token_hash(token, hashed)
+
+
+def test_hash_token_with_invalid_algorithm(token_service: TokenService) -> None:
+    with patch("config.settings.auth.token_hash.algorithm", "invalid"):
+        with pytest.raises(ValueError):
+            token_service.hash_token("some_secret_token_value")
+
+
+def test_verify_token_hash_mismatch(token_service: TokenService) -> None:
+    token = RefreshTokenVo(value="original_token")
+    wrong_hash = "wrong_hash_value"
+
+    with pytest.raises(InvalidTokenException):
+        token_service.verify_token_hash(token, wrong_hash)
