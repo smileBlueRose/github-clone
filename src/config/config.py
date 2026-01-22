@@ -172,6 +172,12 @@ class SessionConfig(BaseModel):
     ua_max_length: int = 512
 
 
+class GitConfig(BaseModel):
+    git_storage_base_path: Path = (
+        Path(os.getenv("LOCALAPPDATA")) / "github-clone" / "repos" if os.name == "nt" else Path("/var/repos")
+    )
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(TEMPLATE_ENV, env_file),
