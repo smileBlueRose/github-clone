@@ -174,7 +174,7 @@ class SessionConfig(BaseModel):
 
 class GitConfig(BaseModel):
     git_storage_base_path: Path = (
-        Path(os.getenv("LOCALAPPDATA")) / "github-clone" / "repos" if os.name == "nt" else Path("/var/repos")
+        Path(os.getenv("LOCALAPPDATA", "C:/Temp")) / "github-clone" / "repos" if os.name == "nt" else Path("/var/repos")
     )
 
 
