@@ -82,3 +82,200 @@ class TestGitPythonStorage:
         await git_storage.delete_repository(repo_path=self.init_schema.repo_path)
 
         assert not (temp_storage_path / self.init_schema.repo_path).exists()
+
+    async def test_repository_exists_success(
+        self,
+        git_storage: GitPythonStorage,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        assert await git_storage.repository_exists(self.init_schema.repo_path)
+
+    async def test_repository_exists_with_invalid_repo(
+        self,
+        git_storage: GitPythonStorage,
+        temp_storage_path: Path,
+    ) -> None:
+        empty_dir_name = "empty-dir"
+        (temp_storage_path / empty_dir_name).mkdir()
+
+        assert not await git_storage.repository_exists(empty_dir_name)
+
+    async def test_repository_exists_with_non_existing_dir(
+        self,
+        git_storage: GitPythonStorage,
+    ) -> None:
+        assert not await git_storage.repository_exists("non-existing-repo")
+
+    async def test_update_file_lifecycle_with_text_file(
+        self,
+        git_storage: GitPythonStorage,
+        temp_storage_path: Path,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        repo_dir = temp_storage_path / self.init_schema.repo_path
+        branch = "master"
+        file_path = "docs/readme.md"
+
+        first_schema = UpdateFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path=file_path,
+            content="first content",
+            branch_name=branch,
+            message="initial commit",
+            author=author,
+        )
+        first_commit = await git_storage.update_file(first_schema)
+        assert self.git_run(repo_dir, "cat-file", "-p", f"{branch}:{file_path}") == first_schema.content
+        assert self.git_run(repo_dir, "rev-parse", branch) == first_commit.commit_hash
+        assert first_commit.author == author
+        assert first_commit.message == first_schema.message
+
+        second_scheme = UpdateFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path=file_path,
+            content="updated content",
+            branch_name=branch,
+            message="second commit",
+            author=author,
+        )
+        second_commit = await git_storage.update_file(second_scheme)
+
+        assert self.git_run(repo_dir, "cat-file", "-p", f"{branch}:{file_path}") == second_scheme.content
+
+        commits = self.git_run(repo_dir, "log", branch, "--format=%H").split("\n")
+        assert len(commits) == 2
+        assert commits[0] == second_commit.commit_hash
+
+    async def test_upload_image(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+        test_images_dir: Path,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        image_path = "image.jpg"
+        image_full_path = test_images_dir / image_path
+        with open(image_full_path, "rb") as f:
+            image_bytes = f.read()
+
+        image_base64 = base64.b64encode(image_bytes).decode("ascii")
+
+        update_schema = UpdateFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path=image_path,
+            content=image_base64,
+            encoding="base64",
+            branch_name=self.default_branch,
+            message="add image",
+            author=author,
+        )
+        await git_storage.update_file(update_schema)
+
+        get_schema = GetFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path=image_path,
+            branch_name=self.default_branch,
+        )
+        file_content = await git_storage.get_file(get_schema)
+
+        assert file_content.encoding == "base64"
+        assert file_content.content == image_base64
+
+    async def test_upload_unknown_encoding_file(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+        test_images_dir: Path,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        schema = UpdateFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path="file.txt",
+            content="first content",
+            branch_name=self.default_branch,
+            encoding="unknown",
+            message="initial commit",
+            author=author,
+        )
+        with pytest.raises(ValueError):
+            await git_storage.update_file(schema)
+
+    async def test_delete_file_success(
+        self,
+        git_storage: GitPythonStorage,
+        temp_storage_path: Path,
+        author: Author,
+    ) -> None:
+        branch = "master"
+
+        await git_storage.init_repository(self.init_schema)
+        schemas: list[UpdateFileSchema] = []
+        for i in range(2):
+            schema = UpdateFileSchema(
+                repo_path=self.init_schema.repo_path,
+                file_path=f"file_{i}.txt",
+                content=f"content_{i}",
+                branch_name=branch,
+                message=f"add file_{i}",
+                author=author,
+            )
+            await git_storage.update_file(schema)
+            schemas.append(schema)
+        delete_schema = DeleteFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path=schemas[0].file_path,
+            branch_name=branch,
+            message="delete file 0",
+            author=author,
+        )
+        delete_commit = await git_storage.delete_file(delete_schema)
+        assert delete_commit.message == delete_schema.message
+
+        files = self.git_run(temp_storage_path / self.init_schema.repo_path, "ls-tree", "-r", branch, "--name-only")
+
+        assert schemas[0].file_path not in files
+        assert schemas[1].file_path in files
+
+    async def test_delete_non_existing_file_without_exception(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        await git_storage.update_file(
+            schema=UpdateFileSchema(
+                repo_path=self.init_schema.repo_path,
+                file_path="file.txt",
+                content="content",
+                message="add file",
+                branch_name=self.default_branch,
+                author=author,
+            )
+        )
+
+        delete_schema = DeleteFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path="non-existing-file.txt",
+            branch_name=self.default_branch,
+            message="delete file",
+            author=author,
+        )
+        await git_storage.delete_file(delete_schema)
+
+    async def test_dele_file_from_non_existing_branch_raises_exception(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        delete_schema = DeleteFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path="non-existing-file.txt",
+            branch_name=self.default_branch,
+            message="delete file",
+            author=author,
+        )
+        with pytest.raises(BranchNotFoundException):
+            await git_storage.delete_file(delete_schema)
