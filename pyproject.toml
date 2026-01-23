@@ -17,6 +17,7 @@ dependencies = [
     "pyjwt[crypto]>=2.10.1",
     "bcrypt>=5.0.0",
     "dependency-injector>=4.48.3",
+    "gitpython>=3.1.46",
 ]
 
 [tool.ruff]

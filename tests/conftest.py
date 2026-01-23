@@ -49,6 +49,11 @@ def test_secrets_dir(project_root: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
+def test_images_dir(project_root: Path) -> Path:
+    return project_root / "tests" / "images"
+
+
+@pytest.fixture(scope="session")
 def private_key(test_secrets_dir: Path) -> str:
     return (test_secrets_dir / "test-private.pem").read_text()
 
