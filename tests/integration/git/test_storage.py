@@ -463,3 +463,144 @@ class TestGitPythonStorage:
         branches = await git_storage.get_branches(self.init_schema.repo_path)
         assert set(["master"] + [f"feature_{i}" for i in range(10)]) == set([i.name for i in branches])
 
+    async def test_get_commit_success(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        schema = UpdateFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path="test.txt",
+            content="hello",
+            branch_name=self.default_branch,
+            message="unique message",
+            author=author,
+        )
+        created_commit = await git_storage.update_file(schema)
+
+        fetched_commit = await git_storage.get_commit(
+            repo_path=self.init_schema.repo_path, commit_sha=created_commit.commit_hash
+        )
+
+        assert fetched_commit.commit_hash == created_commit.commit_hash
+        assert fetched_commit.message == "unique message"
+        assert fetched_commit.author == author
+
+    async def test_get_commit_by_branch_name(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        await git_storage.create_initial_commit(
+            CreateInitialCommitSchema(
+                repo_path=self.init_schema.repo_path, branch_name=self.default_branch, author=author
+            )
+        )
+        fetched_commit = await git_storage.get_commit(
+            repo_path=self.init_schema.repo_path, commit_sha=self.default_branch
+        )
+        assert bool(fetched_commit)
+
+    async def test_get_commits_list_and_limit(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        commit_hashes = []
+        schemas: list[UpdateFileSchema] = []
+        for i in range(5):
+            schema = UpdateFileSchema(
+                repo_path=self.init_schema.repo_path,
+                file_path="file.txt",
+                content=f"content {i}",
+                branch_name=self.default_branch,
+                message=f"commit {i}",
+                author=author,
+            )
+            schemas.append(schema)
+            commit_hashes.append((await git_storage.update_file(schema)).commit_hash)
+
+        all_commits = await git_storage.get_commits(
+            GetCommitsSchema(repo_path=self.init_schema.repo_path, branch_name=self.default_branch, limit=10)
+        )
+        assert len(all_commits) == len(schemas)
+        assert all_commits[0].message == schemas[-1].message
+
+        limited_commits = await git_storage.get_commits(
+            GetCommitsSchema(repo_path=self.init_schema.repo_path, branch_name=self.default_branch, limit=2)
+        )
+        assert len(limited_commits) == 2
+        assert limited_commits[0].message == schemas[-1].message
+        assert limited_commits[1].message == schemas[-2].message
+
+    async def test_get_commit_invalid_sha_raises_exception(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        with pytest.raises(CommitNotFoundException):
+            await git_storage.get_commit(
+                self.init_schema.repo_path, "abc123de456f7890abc123de456f7890abc123de"
+            )  # non existing commit
+
+        with pytest.raises(CommitNotFoundException):
+            await git_storage.get_commit(self.init_schema.repo_path, "invalid")  # invalid sha and non-existing branch
+
+    async def test_get_commits_non_existing_branch_raises_exception(
+        self,
+        git_storage: GitPythonStorage,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        with pytest.raises(BranchNotFoundException):
+            await git_storage.get_commits(
+                GetCommitsSchema(repo_path=self.init_schema.repo_path, branch_name="ghost-branch")
+            )
+
+    async def test_get_refs_success(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        repo_dir = git_storage.base_path / self.init_schema.repo_path
+
+        await git_storage.create_initial_commit(
+            CreateInitialCommitSchema(
+                repo_path=self.init_schema.repo_path, author=author, branch_name=self.default_branch
+            )
+        )
+
+        self.git_run(repo_dir, "branch", "develop")
+        self.git_run(repo_dir, "tag", "v1.0")
+
+        master_sha = self.git_run(repo_dir, "rev-parse", "master")
+
+        refs = await git_storage.get_refs(GetRefsSchema(repo_path=self.init_schema.repo_path))
+
+        assert (
+            refs["refs/heads/master"]
+            == refs["refs/heads/develop"]
+            == refs["refs/tags/v1.0"]
+            == refs["HEAD"]
+            == master_sha
+        )
+
+        assert len(refs) == 4
+
+    async def test_get_refs_empty_repo(
+        self,
+        git_storage: GitPythonStorage,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        refs = await git_storage.get_refs(GetRefsSchema(repo_path=self.init_schema.repo_path))
+
+        assert refs == {}
