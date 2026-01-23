@@ -279,3 +279,187 @@ class TestGitPythonStorage:
         )
         with pytest.raises(BranchNotFoundException):
             await git_storage.delete_file(delete_schema)
+
+    async def test_create_initial_commit_success(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        repo = await git_storage.init_repository(self.init_schema)
+        schema = CreateInitialCommitSchema(repo_path=self.init_schema.repo_path, author=author)
+        await git_storage.create_initial_commit(schema)
+        assert schema.branch_name in self.git_run(repo.full_path, "branch")
+
+    async def test_create_initial_commit_with_existing_branch_name(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        schema = CreateInitialCommitSchema(repo_path=self.init_schema.repo_path, author=author)
+        await git_storage.create_initial_commit(schema)
+        with pytest.raises(BranchAlreadyExistsException):
+            await git_storage.create_initial_commit(schema)
+
+    async def test_create_branch_success(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        repo = await git_storage.init_repository(self.init_schema)
+        await git_storage.create_initial_commit(
+            CreateInitialCommitSchema(
+                repo_path=self.init_schema.repo_path, author=author, branch_name=self.default_branch
+            )
+        )
+
+        branch_schema = CreateBranchSchema(
+            repo_path=self.init_schema.repo_path,
+            branch_name="develop",
+            from_branch=self.default_branch,
+        )
+        await git_storage.create_branch(branch_schema)
+
+        assert branch_schema.branch_name in self.git_run(repo.full_path, "branch")
+
+        main_commit = self.git_run(repo.full_path, "rev-parse", self.default_branch)
+        develop_commit = self.git_run(repo.full_path, "rev-parse", branch_schema.branch_name)
+
+        assert main_commit == develop_commit
+
+    async def test_create_branch_with_existing_branch_name(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        await git_storage.create_initial_commit(
+            CreateInitialCommitSchema(
+                repo_path=self.init_schema.repo_path, author=author, branch_name=self.default_branch
+            )
+        )
+
+        branch_schema = CreateBranchSchema(
+            repo_path=self.init_schema.repo_path,
+            branch_name="develop",
+            from_branch=self.default_branch,
+        )
+        await git_storage.create_branch(branch_schema)
+
+        with pytest.raises(BranchAlreadyExistsException):
+            await git_storage.create_branch(branch_schema)
+
+    async def test_create_branch_from_non_existing_branch(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        await git_storage.create_initial_commit(
+            CreateInitialCommitSchema(
+                repo_path=self.init_schema.repo_path, author=author, branch_name=self.default_branch
+            )
+        )
+        branch_schema = CreateBranchSchema(
+            repo_path=self.init_schema.repo_path,
+            branch_name="develop",
+            from_branch="non-existing-branch",
+        )
+        with pytest.raises(BranchNotFoundException):
+            await git_storage.create_branch(branch_schema)
+
+    async def test_delete_branch_success(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        repo = await git_storage.init_repository(self.init_schema)
+        await git_storage.create_initial_commit(
+            CreateInitialCommitSchema(
+                repo_path=self.init_schema.repo_path, author=author, branch_name=self.default_branch
+            )
+        )
+        schema = CreateBranchSchema(
+            repo_path=self.init_schema.repo_path, branch_name="feature", from_branch=self.default_branch
+        )
+        await git_storage.create_branch(schema)
+
+        delete_schema = DeleteBranchSchema(repo_path=self.init_schema.repo_path, branch_name=schema.branch_name)
+        await git_storage.delete_branch(delete_schema)
+
+        assert delete_schema.branch_name not in self.git_run(repo.full_path, "branch")
+
+    async def test_delete_not_existing_branch_raises_exception(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        delete_schema = DeleteBranchSchema(repo_path=self.init_schema.repo_path, branch_name="not-exists")
+        with pytest.raises(BranchNotFoundException):
+            await git_storage.delete_branch(delete_schema)
+
+    async def test_delete_head_branch_raises_exception(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        await git_storage.create_initial_commit(
+            CreateInitialCommitSchema(
+                repo_path=self.init_schema.repo_path, branch_name=self.default_branch, author=author
+            )
+        )
+
+        delete_schema = DeleteBranchSchema(repo_path=self.init_schema.repo_path, branch_name=self.default_branch)
+        with pytest.raises(CurrentHeadDeletionException):
+            await git_storage.delete_branch(delete_schema)
+
+    async def test_delete_not_merged_commits_branch(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        print()
+        await git_storage.init_repository(self.init_schema)
+        await git_storage.create_initial_commit(
+            CreateInitialCommitSchema(
+                repo_path=self.init_schema.repo_path, branch_name=self.default_branch, author=author
+            )
+        )
+        second_scheme = UpdateFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path="file.txt",
+            content="updated content",
+            branch_name="feature",
+            message="feature commit",
+            author=author,
+        )
+        await git_storage.update_file(second_scheme)
+
+        delete_schema = DeleteBranchSchema(repo_path=self.init_schema.repo_path, branch_name=second_scheme.branch_name)
+        with pytest.raises(UnmergedBranchDeletionException):
+            await git_storage.delete_branch(delete_schema)
+
+    async def test_get_branches(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        await git_storage.create_initial_commit(
+            CreateInitialCommitSchema(
+                repo_path=self.init_schema.repo_path, branch_name=self.default_branch, author=author
+            )
+        )
+        for i in range(10):
+            schema = CreateBranchSchema(
+                repo_path=self.init_schema.repo_path, branch_name=f"feature_{i}", from_branch=self.default_branch
+            )
+            await git_storage.create_branch(schema)
+
+        branches = await git_storage.get_branches(self.init_schema.repo_path)
+        assert set(["master"] + [f"feature_{i}" for i in range(10)]) == set([i.name for i in branches])
+
