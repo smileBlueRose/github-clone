@@ -604,3 +604,129 @@ class TestGitPythonStorage:
         refs = await git_storage.get_refs(GetRefsSchema(repo_path=self.init_schema.repo_path))
 
         assert refs == {}
+
+    async def test_get_file_success_with_text_content(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        update_schema = UpdateFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path="file.txt",
+            content="Hello World",
+            branch_name=self.default_branch,
+            message="add file",
+            author=author,
+        )
+        await git_storage.update_file(update_schema)
+
+        get_schema = GetFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path=update_schema.file_path,
+            branch_name=self.default_branch,
+        )
+        file_content = await git_storage.get_file(get_schema)
+
+        assert file_content.content == update_schema.content
+        assert file_content.encoding == "utf-8"
+        assert file_content.sha is not None
+
+    async def test_get_file_with_binary_content(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+        test_images_dir: Path,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        image_path = "image.jpg"
+        image_full_path = test_images_dir / image_path
+        with open(image_full_path, "rb") as f:
+            image_bytes = f.read()
+
+        image_base64 = base64.b64encode(image_bytes).decode("ascii")
+
+        update_schema = UpdateFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path=image_path,
+            content=image_base64,
+            encoding="base64",
+            branch_name=self.default_branch,
+            message="add image",
+            author=author,
+        )
+        await git_storage.update_file(update_schema)
+
+        get_schema = GetFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path=image_path,
+            branch_name=self.default_branch,
+        )
+        file_content = await git_storage.get_file(get_schema)
+
+        assert file_content.encoding == "base64"
+        assert file_content.content == image_base64
+
+    async def test_get_file_from_non_existing_branch_raises_exception(
+        self,
+        git_storage: GitPythonStorage,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        schema = GetFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path="file.txt",
+            branch_name="non-existing",
+        )
+
+        with pytest.raises(BranchNotFoundException):
+            await git_storage.get_file(schema)
+
+    async def test_get_file_non_existing_file_raises_exception(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+        await git_storage.create_initial_commit(
+            CreateInitialCommitSchema(
+                repo_path=self.init_schema.repo_path, author=author, branch_name=self.default_branch
+            )
+        )
+
+        schema = GetFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path="non-existing.txt",
+            branch_name=self.default_branch,
+        )
+
+        with pytest.raises(FileNotFoundException):
+            await git_storage.get_file(schema)
+
+    async def test_get_file_directory_raises_exception(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        update_schema = UpdateFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path="docs/readme.md",
+            content="content",
+            encoding="utf-8",
+            branch_name=self.default_branch,
+            message="add file",
+            author=author,
+        )
+        await git_storage.update_file(update_schema)
+
+        schema = GetFileSchema(
+            repo_path=self.init_schema.repo_path,
+            file_path="docs",
+            branch_name=self.default_branch,
+        )
+
+        with pytest.raises(IsDirectoryException):
+            await git_storage.get_file(schema)
