@@ -233,7 +233,13 @@ class TestGitPythonStorage:
         delete_commit = await git_storage.delete_file(delete_schema)
         assert delete_commit.message == delete_schema.message
 
-        files = self.git_run(temp_storage_path / self.init_schema.repo_path, "ls-tree", "-r", branch, "--name-only")
+        files = self.git_run(
+            temp_storage_path / self.init_schema.repo_path,
+            "ls-tree",
+            "-r",
+            branch,
+            "--name-only",
+        )
 
         assert schemas[0].file_path not in files
         assert schemas[1].file_path in files
@@ -310,7 +316,9 @@ class TestGitPythonStorage:
         repo = await git_storage.init_repository(self.init_schema)
         await git_storage.create_initial_commit(
             CreateInitialCommitSchema(
-                repo_path=self.init_schema.repo_path, author=author, branch_name=self.default_branch
+                repo_path=self.init_schema.repo_path,
+                author=author,
+                branch_name=self.default_branch,
             )
         )
 
@@ -336,7 +344,9 @@ class TestGitPythonStorage:
         await git_storage.init_repository(self.init_schema)
         await git_storage.create_initial_commit(
             CreateInitialCommitSchema(
-                repo_path=self.init_schema.repo_path, author=author, branch_name=self.default_branch
+                repo_path=self.init_schema.repo_path,
+                author=author,
+                branch_name=self.default_branch,
             )
         )
 
@@ -358,7 +368,9 @@ class TestGitPythonStorage:
         await git_storage.init_repository(self.init_schema)
         await git_storage.create_initial_commit(
             CreateInitialCommitSchema(
-                repo_path=self.init_schema.repo_path, author=author, branch_name=self.default_branch
+                repo_path=self.init_schema.repo_path,
+                author=author,
+                branch_name=self.default_branch,
             )
         )
         branch_schema = CreateBranchSchema(
@@ -377,11 +389,15 @@ class TestGitPythonStorage:
         repo = await git_storage.init_repository(self.init_schema)
         await git_storage.create_initial_commit(
             CreateInitialCommitSchema(
-                repo_path=self.init_schema.repo_path, author=author, branch_name=self.default_branch
+                repo_path=self.init_schema.repo_path,
+                author=author,
+                branch_name=self.default_branch,
             )
         )
         schema = CreateBranchSchema(
-            repo_path=self.init_schema.repo_path, branch_name="feature", from_branch=self.default_branch
+            repo_path=self.init_schema.repo_path,
+            branch_name="feature",
+            from_branch=self.default_branch,
         )
         await git_storage.create_branch(schema)
 
@@ -409,7 +425,9 @@ class TestGitPythonStorage:
         await git_storage.init_repository(self.init_schema)
         await git_storage.create_initial_commit(
             CreateInitialCommitSchema(
-                repo_path=self.init_schema.repo_path, branch_name=self.default_branch, author=author
+                repo_path=self.init_schema.repo_path,
+                branch_name=self.default_branch,
+                author=author,
             )
         )
 
@@ -426,7 +444,9 @@ class TestGitPythonStorage:
         await git_storage.init_repository(self.init_schema)
         await git_storage.create_initial_commit(
             CreateInitialCommitSchema(
-                repo_path=self.init_schema.repo_path, branch_name=self.default_branch, author=author
+                repo_path=self.init_schema.repo_path,
+                branch_name=self.default_branch,
+                author=author,
             )
         )
         second_scheme = UpdateFileSchema(
@@ -451,12 +471,16 @@ class TestGitPythonStorage:
         await git_storage.init_repository(self.init_schema)
         await git_storage.create_initial_commit(
             CreateInitialCommitSchema(
-                repo_path=self.init_schema.repo_path, branch_name=self.default_branch, author=author
+                repo_path=self.init_schema.repo_path,
+                branch_name=self.default_branch,
+                author=author,
             )
         )
         for i in range(10):
             schema = CreateBranchSchema(
-                repo_path=self.init_schema.repo_path, branch_name=f"feature_{i}", from_branch=self.default_branch
+                repo_path=self.init_schema.repo_path,
+                branch_name=f"feature_{i}",
+                from_branch=self.default_branch,
             )
             await git_storage.create_branch(schema)
 
@@ -496,7 +520,9 @@ class TestGitPythonStorage:
 
         await git_storage.create_initial_commit(
             CreateInitialCommitSchema(
-                repo_path=self.init_schema.repo_path, branch_name=self.default_branch, author=author
+                repo_path=self.init_schema.repo_path,
+                branch_name=self.default_branch,
+                author=author,
             )
         )
         fetched_commit = await git_storage.get_commit(
@@ -526,13 +552,21 @@ class TestGitPythonStorage:
             commit_hashes.append((await git_storage.update_file(schema)).commit_hash)
 
         all_commits = await git_storage.get_commits(
-            GetCommitsSchema(repo_path=self.init_schema.repo_path, branch_name=self.default_branch, limit=10)
+            GetCommitsSchema(
+                repo_path=self.init_schema.repo_path,
+                branch_name=self.default_branch,
+                limit=10,
+            )
         )
         assert len(all_commits) == len(schemas)
         assert all_commits[0].message == schemas[-1].message
 
         limited_commits = await git_storage.get_commits(
-            GetCommitsSchema(repo_path=self.init_schema.repo_path, branch_name=self.default_branch, limit=2)
+            GetCommitsSchema(
+                repo_path=self.init_schema.repo_path,
+                branch_name=self.default_branch,
+                limit=2,
+            )
         )
         assert len(limited_commits) == 2
         assert limited_commits[0].message == schemas[-1].message
@@ -574,7 +608,9 @@ class TestGitPythonStorage:
 
         await git_storage.create_initial_commit(
             CreateInitialCommitSchema(
-                repo_path=self.init_schema.repo_path, author=author, branch_name=self.default_branch
+                repo_path=self.init_schema.repo_path,
+                author=author,
+                branch_name=self.default_branch,
             )
         )
 
@@ -691,7 +727,9 @@ class TestGitPythonStorage:
         await git_storage.init_repository(self.init_schema)
         await git_storage.create_initial_commit(
             CreateInitialCommitSchema(
-                repo_path=self.init_schema.repo_path, author=author, branch_name=self.default_branch
+                repo_path=self.init_schema.repo_path,
+                author=author,
+                branch_name=self.default_branch,
             )
         )
 

@@ -23,7 +23,11 @@ def pytest_sessionstart(session: pytest.Session) -> None:
 
     patcher_method = patch("src.config.config.DatabaseConfig.read_db_password", return_value="N/A")
 
-    patcher_url = patch("src.config.config.DatabaseConfig.url", new_callable=PropertyMock, return_value=test_url)
+    patcher_url = patch(
+        "src.config.config.DatabaseConfig.url",
+        new_callable=PropertyMock,
+        return_value=test_url,
+    )
 
     patcher_method.start()
     patcher_url.start()
@@ -92,7 +96,9 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 
 
 @pytest.fixture(scope="function")
-async def session(event_loop: asyncio.AbstractEventLoop) -> AsyncGenerator[AsyncSession, None]:
+async def session(
+    event_loop: asyncio.AbstractEventLoop,
+) -> AsyncGenerator[AsyncSession, None]:
     test_url = "postgresql+asyncpg://user:pass@localhost:5433/test_db"
 
     engine = create_async_engine(test_url, echo=False)
