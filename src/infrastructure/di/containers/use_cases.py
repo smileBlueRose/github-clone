@@ -1,8 +1,8 @@
 from dependency_injector import containers, providers
 
-from application.use_cases.login_user import LoginUserUseCase
-from application.use_cases.refresh_tokens import RefreshTokensUseCase
-from application.use_cases.register_user import RegisterUserUseCase
+from application.use_cases.auth.login_user import LoginUserUseCase
+from application.use_cases.auth.refresh_tokens import RefreshTokensUseCase
+from application.use_cases.auth.register_user import RegisterUserUseCase
 
 
 class UseCaseContainer(containers.DeclarativeContainer):

@@ -8,8 +8,8 @@ from api import router as api_router
 from config import settings
 from infrastructure.database.db_helper import check_connection, db_helper
 from infrastructure.di.container import Container
-from infrastructure.web.errors import register_error_handlers
-from infrastructure.web.setup import setup_logging_middleware
+from infrastructure.middleware.errors import register_error_handlers
+from infrastructure.middleware.setup import setup_logging_middleware
 
 
 def create_app() -> Flask:
@@ -23,6 +23,7 @@ def create_app() -> Flask:
 
     container = Container()
     container.wire(modules=["api.v1.auth"])
+    container.wire(modules=["infrastructure.middleware.auth"])
 
     return app
 

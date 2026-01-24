@@ -33,7 +33,6 @@ class RunConfig(BaseModel):
 class ApiConfig(BaseModel):
     class ApiV1Confg(BaseModel):
         prefix: str = "/v1"
-        users_prefix: str = "/users"
 
     # TODO: It's not a good structure. Late it will grow fast and become really big & complicated. Refactor it
     class AuthConfig(BaseModel):
@@ -47,9 +46,17 @@ class ApiConfig(BaseModel):
         refresh_prefix: str = "/refresh"
         refresh_methods: list[str] = ["POST"]
 
+    class GitConfig(BaseModel):
+        prefix: str = "/git"
+
+    class UserConfig(BaseModel):
+        prefix: str = "/users"
+
     prefix: str = "/api"
     v1: ApiV1Confg = ApiV1Confg()
     auth: AuthConfig = AuthConfig()
+    git: GitConfig = GitConfig()
+    users: UserConfig = UserConfig()
 
 
 class DatabaseConfig(BaseModel):
@@ -158,9 +165,19 @@ class AuthConfig(BaseModel):
         # Passwords contains at least one: lowercase letter, uppercase letter and digit
         pattern: re.Pattern[str] = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$")
 
+    class Cookies(BaseModel):
+        class Refresh(BaseModel):
+            httponly: bool = True
+            secure: bool = True
+            samesite: str = "Lax"
+            max_age: int = 30 * 24 * 3600  # 30 days
+
+        refresh: Refresh = Refresh()
+
     jwt: JWT
     token_hash: TokenHash = TokenHash()
     password: Password = Password()
+    cookies: Cookies = Cookies()
 
 
 class Logger(BaseModel):

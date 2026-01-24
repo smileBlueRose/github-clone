@@ -1,14 +1,14 @@
 from typing import cast
 
 from dependency_injector.wiring import Provide, inject
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, jsonify, make_response, request
 from pydantic import IPvAnyAddress
 
 from api.exceptions.api import MissingCookiesException
 from application.commands.auth import RefreshTokensCommand, UserLoginCommand, UserRegisterCommand
-from application.use_cases.login_user import LoginUserUseCase
-from application.use_cases.refresh_tokens import RefreshTokensUseCase
-from application.use_cases.register_user import RegisterUserUseCase
+from application.use_cases.auth.login_user import LoginUserUseCase
+from application.use_cases.auth.refresh_tokens import RefreshTokensUseCase
+from application.use_cases.auth.register_user import RegisterUserUseCase
 from config import settings
 from infrastructure.di.container import Container
 
@@ -47,15 +47,15 @@ async def login(use_case: LoginUserUseCase = Provide[Container.use_cases.login_u
     )
     access, refresh = await use_case.execute(command=command)
 
-    return (
-        jsonify(
-            {
-                "access": access.value,
-                "refresh": refresh.value,
-            }
-        ),
-        200,
+    response = make_response(jsonify({"access": access.value}))
+    response.set_cookie(
+        "refresh_token",
+        value=refresh.value,
+        httponly=settings.auth.cookies.refresh.httponly,
+        secure=settings.auth.cookies.refresh.secure,
+        samesite=settings.auth.cookies.refresh.samesite,
     )
+    return response, 200
 
 
 @auth_router.route(settings.api.auth.refresh_prefix, methods=settings.api.auth.refresh_methods)
@@ -72,12 +72,12 @@ async def refresh(use_case: RefreshTokensUseCase = Provide[Container.use_cases.r
     )
     access, refresh = await use_case.execute(command)
 
-    return (
-        jsonify(
-            {
-                "access": access.value,
-                "refresh": refresh.value,
-            }
-        ),
-        200,
+    response = make_response(jsonify({"access": access.value}))
+    response.set_cookie(
+        "refresh_token",
+        value=refresh.value,
+        httponly=settings.auth.cookies.refresh.httponly,
+        secure=settings.auth.cookies.refresh.secure,
+        samesite=settings.auth.cookies.refresh.samesite,
     )
+    return response, 200
