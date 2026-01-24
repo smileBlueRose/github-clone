@@ -5,7 +5,11 @@ from pydantic import EmailStr
 
 from config import settings
 from domain.exceptions.auth import WeakPasswordException
-from domain.exceptions.user import InvalidUsernameException, UserAlreadyExistsException, UserNotFoundException
+from domain.exceptions.user import (
+    InvalidUsernameException,
+    UserAlreadyExistsException,
+    UserNotFoundException,
+)
 from domain.ports.repositories.user import AbstractUserReadRepository
 from domain.ports.service import BaseService
 from domain.schemas.user import UserCreateSchema

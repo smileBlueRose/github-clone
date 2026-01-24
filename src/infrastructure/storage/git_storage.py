@@ -32,7 +32,7 @@ from domain.schemas.repository_storage import (
     InitRepositorySchema,
     UpdateFileSchema,
 )
-from domain.value_objects.git import Author, BranchInfo, CommitInfo, Repository
+from domain.value_objects.git import Author, BranchInfo, CommitInfo, FsRepo
 
 
 class GitPythonStorage(AbstractRepositoryStorage):
@@ -49,11 +49,11 @@ class GitPythonStorage(AbstractRepositoryStorage):
         self.base_path = repo_path
         self.base_path.mkdir(parents=True, exist_ok=True)
 
-    async def init_repository(self, schema: InitRepositorySchema) -> Repository:
-        def _init() -> Repository:
+    async def init_repository(self, schema: InitRepositorySchema) -> FsRepo:
+        def _init() -> FsRepo:
             full_path = self.base_path / schema.repo_path
             Repo.init(full_path, bare=True)
-            return Repository(full_path=full_path)
+            return FsRepo(full_path=full_path)
 
         return await asyncio.to_thread(_init)
 
@@ -77,7 +77,12 @@ class GitPythonStorage(AbstractRepositoryStorage):
 
         author = git.Actor(name=schema.author.name, email=schema.author.email)
         commit = git.Commit.create_from_tree(
-            repo, tree=empty_tree, message=schema.message, parent_commits=[], author=author, committer=author
+            repo,
+            tree=empty_tree,
+            message=schema.message,
+            parent_commits=[],
+            author=author,
+            committer=author,
         )
         repo.create_head(schema.branch_name, commit=commit.hexsha, force=False)
 
@@ -251,12 +256,20 @@ class GitPythonStorage(AbstractRepositoryStorage):
                 blob_sha = bytes.fromhex(repo.git.hash_object("-w", tmp.name))
 
             entry_data = self.IndexEntryData(
-                mode=self.FILE_MODE_REGULAR, sha=blob_sha, stage=self.INDEX_STAGE_NORMAL, path=schema.file_path
+                mode=self.FILE_MODE_REGULAR,
+                sha=blob_sha,
+                stage=self.INDEX_STAGE_NORMAL,
+                path=schema.file_path,
             )
             index.add([git.IndexEntry(entry_data)])
 
             new_commit = git.Commit.create_from_tree(
-                repo, index.write_tree(), schema.message, parents, author=author, committer=author
+                repo,
+                index.write_tree(),
+                schema.message,
+                parents,
+                author=author,
+                committer=author,
             )
 
             if schema.branch_name in repo.heads:
