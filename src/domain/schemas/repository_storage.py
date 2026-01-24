@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from domain.ports.schemas import BaseCreateSchema, BaseUpdateSchema
 from domain.value_objects.git import Author
@@ -73,8 +73,11 @@ class GetRefsSchema(BaseModel):
 # ==== MODEL ====
 # ===============
 class GitRepoCreateSchema(BaseCreateSchema):
-    pass
+    name: str = Field(max_length=255)
+    owner_id: int
+    description: str | None = None
 
 
 class GitRepoUpdateSchema(BaseUpdateSchema):
-    pass
+    name: str | None = None
+    description: str | None = None
