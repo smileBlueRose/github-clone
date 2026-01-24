@@ -15,7 +15,9 @@ def require_auth(
     token_service: TokenService = Provide[Container.services.token_service],
 ) -> Callable[[Callable[..., ResponseReturnValue]], Callable[..., ResponseReturnValue]]:
 
-    def decorator(func: Callable[..., ResponseReturnValue]) -> Callable[..., ResponseReturnValue]:
+    def decorator(
+        func: Callable[..., ResponseReturnValue],
+    ) -> Callable[..., ResponseReturnValue]:
 
         @wraps(func)
         def decorated(*args: Any, **kwargs: Any) -> ResponseReturnValue:

@@ -7,7 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from domain.entities.user import User
 from domain.exceptions.user import UserNotFoundException
 from domain.filters.user import UserFilter
-from domain.ports.repositories.user import AbstractUserReadRepository, AbstractUserWriteRepository
+from domain.ports.repositories.user import (
+    AbstractUserReadRepository,
+    AbstractUserWriteRepository,
+)
 from domain.schemas.user import UserCreateSchema, UserUpdateSchema
 from infrastructure.database.models.user import UserModel
 

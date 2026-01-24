@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+from domain.ports.schemas import BaseCreateSchema, BaseUpdateSchema
 from domain.value_objects.git import Author
 
 
@@ -66,3 +67,14 @@ class DeleteFileSchema(BaseModel):
 
 class GetRefsSchema(BaseModel):
     repo_path: str
+
+
+# ===============
+# ==== MODEL ====
+# ===============
+class GitRepoCreateSchema(BaseCreateSchema):
+    pass
+
+
+class GitRepoUpdateSchema(BaseUpdateSchema):
+    pass

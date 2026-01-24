@@ -5,7 +5,11 @@ from flask import Blueprint, Response, jsonify, make_response, request
 from pydantic import IPvAnyAddress
 
 from api.exceptions.api import MissingCookiesException
-from application.commands.auth import RefreshTokensCommand, UserLoginCommand, UserRegisterCommand
+from application.commands.auth import (
+    RefreshTokensCommand,
+    UserLoginCommand,
+    UserRegisterCommand,
+)
 from application.use_cases.auth.login_user import LoginUserUseCase
 from application.use_cases.auth.refresh_tokens import RefreshTokensUseCase
 from application.use_cases.auth.register_user import RegisterUserUseCase
@@ -17,7 +21,9 @@ auth_router = Blueprint("auth", __name__, url_prefix=settings.api.auth.prefix)
 
 @auth_router.route(settings.api.auth.register_prefix, methods=settings.api.auth.register_methods)
 @inject
-async def register(use_case: RegisterUserUseCase = Provide[Container.use_cases.register_user]) -> tuple[Response, int]:
+async def register(
+    use_case: RegisterUserUseCase = Provide[Container.use_cases.register_user],
+) -> tuple[Response, int]:
     data = request.get_json()
     command = UserRegisterCommand(**data)
 
@@ -37,7 +43,9 @@ async def register(use_case: RegisterUserUseCase = Provide[Container.use_cases.r
 
 @auth_router.route(settings.api.auth.login_prefix, methods=settings.api.auth.login_methods)
 @inject
-async def login(use_case: LoginUserUseCase = Provide[Container.use_cases.login_user]) -> tuple[Response, int]:
+async def login(
+    use_case: LoginUserUseCase = Provide[Container.use_cases.login_user],
+) -> tuple[Response, int]:
     data = request.get_json()
     command = UserLoginCommand(
         email=data["email"],
@@ -60,7 +68,9 @@ async def login(use_case: LoginUserUseCase = Provide[Container.use_cases.login_u
 
 @auth_router.route(settings.api.auth.refresh_prefix, methods=settings.api.auth.refresh_methods)
 @inject
-async def refresh(use_case: RefreshTokensUseCase = Provide[Container.use_cases.refresh_tokens]) -> tuple[Response, int]:
+async def refresh(
+    use_case: RefreshTokensUseCase = Provide[Container.use_cases.refresh_tokens],
+) -> tuple[Response, int]:
     token: str | None = request.cookies.get("refresh_token")
     if not token:
         raise MissingCookiesException("Refresh token not found in cookies")

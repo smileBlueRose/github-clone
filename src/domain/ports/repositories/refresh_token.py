@@ -4,7 +4,10 @@ from uuid import UUID
 from domain.entities.refresh import RefreshToken
 from domain.filters.refresh_token import RefreshTokenFilter
 from domain.ports.repository import AbstractReadRepository, AbstractWriteRepository
-from domain.schemas.refresh_token import RefreshTokenCreateSchema, RefreshTokenUpdateSchema
+from domain.schemas.refresh_token import (
+    RefreshTokenCreateSchema,
+    RefreshTokenUpdateSchema,
+)
 
 
 class AbstractRefreshTokenReadRepository(AbstractReadRepository[RefreshToken, UUID, RefreshTokenFilter]):

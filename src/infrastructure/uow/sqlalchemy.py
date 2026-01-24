@@ -16,7 +16,10 @@ class SqlAlchemyUoW(AbstractUnitOfWork):
         return self
 
     async def __aexit__(
-        self, exc_type: type[BaseException] | None, exc_val: BaseException, exc_tb: TracebackType
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException,
+        exc_tb: TracebackType,
     ) -> None:
         if exc_type:
             await self.rollback()

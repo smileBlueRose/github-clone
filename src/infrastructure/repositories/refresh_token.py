@@ -10,7 +10,10 @@ from domain.ports.repositories.refresh_token import (
     AbstractRefreshTokenReadRepository,
     AbstractRefreshTokenWriteRepository,
 )
-from domain.schemas.refresh_token import RefreshTokenCreateSchema, RefreshTokenUpdateSchema
+from domain.schemas.refresh_token import (
+    RefreshTokenCreateSchema,
+    RefreshTokenUpdateSchema,
+)
 from infrastructure.database.models.refresh_token import RefreshTokenModel
 
 
