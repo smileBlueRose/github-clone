@@ -14,3 +14,13 @@ class RepositoryModel(Base[Repository], UUIDMixin, CreatedAtMixin, UpdatedAtMixi
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     owner_id: Mapped[int] = mapped_column(ForeignKey(UserModel.id), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    def to_entity(self) -> Repository:
+        return Repository(
+            id=self.id,
+            name=self.name,
+            owner_id=self.owner_id,
+            description=self.description,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+        )
