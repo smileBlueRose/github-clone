@@ -61,3 +61,9 @@ class RepositoryException(GitException):
 class RepositoryNotFoundException(NotFoundException, RepositoryException):
     def __init__(self, *, repo_id: UUID) -> None:
         super().__init__(f"Repository with id {repo_id} not found")
+
+
+class RepositoryAlreadyExistsException(AlreadyExistsException, RepositoryException):
+    def __init__(self, *, repository_name: str) -> None:
+        self.repository_name = repository_name
+        super().__init__(f"Repository '{repository_name}' already exists")
