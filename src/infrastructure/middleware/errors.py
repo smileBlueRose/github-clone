@@ -1,3 +1,5 @@
+import traceback
+
 from flask import Flask, Response, jsonify
 from loguru import logger
 from pydantic import ValidationError
@@ -54,5 +56,7 @@ def register_error_handlers(app: Flask) -> None:
 
     @app.errorhandler(Exception)
     def handle_unexpected_error(error: Exception) -> tuple[Response, int]:
-        logger.exception(f"Unexpected system error: {error}")
+
+        logger.error(f"Unexpected system error: {error}\n{traceback.format_exc()}")
+
         return jsonify({"error": "Internal Server Error"}), 500
