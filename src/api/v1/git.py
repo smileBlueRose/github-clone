@@ -13,10 +13,10 @@ from infrastructure.di.container import Container
 from infrastructure.middleware.auth import require_auth
 from infrastructure.utils.security import get_sanitized_data, sanitize_html_input
 
-git_router = Blueprint("git", __name__, url_prefix=settings.api.git.prefix)
+git_router = Blueprint("git", __name__, url_prefix=settings.api.repositories.prefix)
 
 
-@git_router.route(settings.api.git.create_prefix, methods=settings.api.git.create_methods)
+@git_router.route("", methods=["POST"])
 @require_auth()
 @inject
 async def create_repository(

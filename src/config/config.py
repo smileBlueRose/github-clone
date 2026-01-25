@@ -46,12 +46,8 @@ class ApiConfig(BaseModel):
         refresh_prefix: str = "/refresh"
         refresh_methods: list[str] = ["POST"]
 
-    class GitConfig(BaseModel):
-        prefix: str = "/git"
-
-        create_prefix: str = "/create"
-        create_methods: list[str] = ["POST"]
-        delete_methods: list[str] = ["DELETE"]
+    class RepositoryConfig(BaseModel):
+        prefix: str = "/repositories"
 
     class UserConfig(BaseModel):
         prefix: str = "/users"
@@ -59,7 +55,7 @@ class ApiConfig(BaseModel):
     prefix: str = "/api"
     v1: ApiV1Confg = ApiV1Confg()
     auth: AuthConfig = AuthConfig()
-    git: GitConfig = GitConfig()
+    repositories: RepositoryConfig = RepositoryConfig()
     users: UserConfig = UserConfig()
 
 
