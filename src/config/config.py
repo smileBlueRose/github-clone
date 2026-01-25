@@ -85,7 +85,7 @@ class DatabaseConfig(BaseModel):
             return ""
 
         try:
-            return Path(self.password_file).read_text().strip()
+            return (BASE_DIR / Path(self.password_file)).read_text().strip()
         except FileNotFoundError:
             logger.warning(f"Password file not found at {self.password_file}")
             return ""
@@ -148,11 +148,11 @@ class AuthConfig(BaseModel):
 
         @property
         def private_key(self) -> str:
-            return Path(self.private_key_file_path).read_text()
+            return (BASE_DIR / Path(self.private_key_file_path)).read_text()
 
         @property
         def public_key(self) -> str:
-            return Path(self.public_key_file_path).read_text()
+            return (BASE_DIR / Path(self.public_key_file_path)).read_text()
 
     class TokenHash(BaseModel):
         algorithm: str = "sha256"
