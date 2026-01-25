@@ -1,0 +1,36 @@
+# ================================================================
+# ACCESS CONTROL POLICY MANIFEST
+# ================================================================
+#
+# TERMINOLOGY:
+#
+# 1. ACTION (string)
+#    The unique identifier of the operation being performed.
+#    Format: "resource:operation" (e.g., "repository:edit", "user:delete").
+#
+# 2. EFFECT (string: ALLOW | DENY)
+#    The result if the policy matches. 
+#    - DENY: Immediately forbids the action (High priority).
+#    - ALLOW: Grants permission for the action.
+#
+# 3. PRIORITY (integer: 0-1000)
+#    Determines evaluation order. Higher numbers are checked first.
+#    - 100+: Admin/Superuser overrides.
+#    - 40-60: Business logic & state constraints
+#    - 10-30: Basic ownership or role permissions.
+#
+# 4. SUBJECT_RULES (dictionary)
+#    Requirements for the User (the one performing the action).
+#    Matches attributes like: is_admin, role, department_id.
+#    Example: { is_admin: true }
+#
+# 5. RESOURCE_RULES (dictionary)
+#    Requirements for the Object (the thing being acted upon).
+#    Matches attributes like: is_archive, is_private, type.
+#    Example: { is_archive: true }
+#
+# 6. CONDITIONS (list of strings)
+#    Dynamic expressions for logic that cannot be expressed as static values.
+#    Common use: Comparing subject and resource (e.g., "subject.id == resource.owner_id").
+#
+# ================================================================
