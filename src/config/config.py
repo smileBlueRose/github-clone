@@ -2,7 +2,7 @@ import os
 import re
 from datetime import UTC, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 from urllib.parse import quote_plus
 
 from loguru import logger
@@ -191,6 +191,9 @@ class SessionConfig(BaseModel):
 
 class GitConfig(BaseModel):
     repositories_base_path: str
+
+    repository_name_pattern: ClassVar[re.Pattern[str]] = re.compile(r"^[a-zA-Z0-9_-]{1,100}$")
+    description_max_length: int = 10_000
 
     @property
     def storage_base_path(self) -> Path:
