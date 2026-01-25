@@ -74,12 +74,12 @@ class GetRefsSchema(BaseModel):
 # ===============
 # ==== MODEL ====
 # ===============
-class GitRepoCreateSchema(BaseCreateSchema):
+class RepositoryCreateSchema(BaseCreateSchema):
     name: str = Field(max_length=255)
     owner_id: UUID
     description: str | None = None
 
 
-class GitRepoUpdateSchema(BaseUpdateSchema):
+class RepositoryUpdateSchema(BaseUpdateSchema):
     name: str | None = None
     description: str | None = None

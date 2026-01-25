@@ -2,30 +2,30 @@ from abc import abstractmethod
 from uuid import UUID
 
 from domain.entities.git import Repository
-from domain.filters.git import GitRepoFilter
+from domain.filters.git import RepositoryFilter
 from domain.ports.repository import AbstractReadRepository, AbstractWriteRepository
-from domain.schemas.repository_storage import GitRepoCreateSchema, GitRepoUpdateSchema
+from domain.schemas.repository_storage import RepositoryCreateSchema, RepositoryUpdateSchema
 
 
-class AbstractGitRepoReadRepository(AbstractReadRepository[Repository, UUID, GitRepoFilter]):
+class AbstractRepositoryReader(AbstractReadRepository[Repository, UUID, RepositoryFilter]):
     @abstractmethod
     async def get_by_identity(self, identity: UUID) -> Repository:
         """:raises GitRepositoryNotFoundException:"""
 
     @abstractmethod
-    async def get_all(self, filter_: GitRepoFilter) -> list[Repository]:
+    async def get_all(self, filter_: RepositoryFilter) -> list[Repository]:
         pass
 
 
-class AbstractGitRepoWriteRepository(
-    AbstractWriteRepository[Repository, GitRepoCreateSchema, GitRepoUpdateSchema, UUID]
+class AbstractRepositoryWriter(
+    AbstractWriteRepository[Repository, RepositoryCreateSchema, RepositoryUpdateSchema, UUID]
 ):
     @abstractmethod
-    async def create(self, schema: GitRepoCreateSchema) -> Repository:
+    async def create(self, schema: RepositoryCreateSchema) -> Repository:
         pass
 
     @abstractmethod
-    async def update(self, identity: UUID, schema: GitRepoUpdateSchema) -> Repository:
+    async def update(self, identity: UUID, schema: RepositoryUpdateSchema) -> Repository:
         """:raises RepositoryNotFoundException:"""
 
         pass

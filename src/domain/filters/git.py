@@ -1,5 +1,5 @@
 from domain.ports.filter import BaseFilter
 
 
-class GitRepoFilter(BaseFilter):
+class RepositoryFilter(BaseFilter):
     pass

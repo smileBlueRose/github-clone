@@ -51,13 +51,13 @@ class IsDirectoryException(GitException):
         self.msg = f"Expected a file, but found a directory at path: {file_path}"
 
 
-# =======================
-# ==== GitRepository ====
-# =======================
-class GitRepositoryException(CustomException):
+# ====================
+# ==== Repository ====
+# ====================
+class RepositoryException(GitException):
     pass
 
 
-class GitRepositoryNotFoundException(NotFoundException, GitRepositoryException):
+class RepositoryNotFoundException(NotFoundException, RepositoryException):
     def __init__(self, *, repo_id: UUID) -> None:
         super().__init__(f"Repository with id {repo_id} not found")
