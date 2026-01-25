@@ -7,3 +7,7 @@ class NotFoundException(CustomException):
 
 class AlreadyExistsException(CustomException):
     pass
+
+
+class PermissionDenied(CustomException):
+    pass
