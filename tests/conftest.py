@@ -7,17 +7,15 @@ if os.getenv("ENV") != "test":
 
 import asyncio
 from pathlib import Path
-from typing import Any, AsyncGenerator, Generator
-from unittest.mock import PropertyMock, patch
+from typing import AsyncGenerator, Generator
 from uuid import uuid4
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from config import settings
 from domain.entities.user import User
 from infrastructure.database.models.base import Base
-from src.config import settings
-
 
 
 @pytest.fixture(scope="session")
