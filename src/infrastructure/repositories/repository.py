@@ -69,5 +69,11 @@ class RepositoryReader(AbstractRepositoryReader):
     async def get_all(self, filter_: RepositoryFilter) -> list[Repository]:
         stmt = select(RepositoryModel)
 
+        if filter_.user_id is not None:
+            stmt = stmt.where(RepositoryModel.owner_id == filter_.user_id)
+
+        if filter_.repository_name is not None:
+            stmt = stmt.where(RepositoryModel.name == filter_.repository_name)
+
         result = await self._session.execute(stmt)
         return [i.to_entity() for i in result.scalars().all()]
