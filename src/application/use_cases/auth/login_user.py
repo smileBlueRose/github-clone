@@ -35,7 +35,8 @@ class LoginUserUseCase(AbstractUseCase[UserLoginCommand]):
             logger.debug("Repositories initialized")
 
             auth_service = AuthenticationService(
-                token_service=self.token_service, user_read_repository=user_read_repository
+                token_service=self.token_service,
+                user_read_repository=user_read_repository,
             )
 
             credentials = LoginCredentials(email=command.email, password=command.password)

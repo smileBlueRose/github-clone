@@ -1,3 +1,5 @@
+import traceback
+
 from flask import Flask, Response, jsonify
 from loguru import logger
 from pydantic import ValidationError
@@ -5,6 +7,7 @@ from pydantic import ValidationError
 from api.exceptions.api import ApiException
 from domain.exceptions import CustomException
 from domain.exceptions.auth import InvalidCredentialsException, WeakPasswordException
+from domain.exceptions.git import RepositoryAlreadyExistsException
 from domain.exceptions.refresh_token import RefreshTokenAlreadyRevokedException
 from domain.exceptions.user import InvalidUsernameException, UserAlreadyExistsException
 
@@ -14,6 +17,7 @@ ERROR_MAP: dict[type, tuple[str, int]] = {
     InvalidUsernameException: ("Invalid username format", 400),
     InvalidCredentialsException: ("Invalid credentials", 401),
     RefreshTokenAlreadyRevokedException: ("Refresh token is already revoked", 400),
+    RepositoryAlreadyExistsException: ("Repository with this name already exists", 409),
 }
 
 
@@ -54,5 +58,7 @@ def register_error_handlers(app: Flask) -> None:
 
     @app.errorhandler(Exception)
     def handle_unexpected_error(error: Exception) -> tuple[Response, int]:
-        logger.exception(f"Unexpected system error: {error}")
+
+        logger.error(f"Unexpected system error: {error}\n{traceback.format_exc()}")
+
         return jsonify({"error": "Internal Server Error"}), 500

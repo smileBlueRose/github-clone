@@ -11,12 +11,12 @@ from domain.schemas.repository_storage import (
     InitRepositorySchema,
     UpdateFileSchema,
 )
-from domain.value_objects.git import BranchInfo, CommitInfo, Repository
+from domain.value_objects.git import BranchInfo, CommitInfo, FsRepo
 
 
 class AbstractRepositoryStorage(ABC):
     @abstractmethod
-    async def init_repository(self, schema: InitRepositorySchema) -> Repository:
+    async def init_repository(self, schema: InitRepositorySchema) -> FsRepo:
         pass
 
     @abstractmethod

@@ -19,7 +19,10 @@ class RefreshTokenModel(Base[RefreshToken], UUIDMixin, CreatedAtMixin):
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey(UserModel.id, ondelete="CASCADE"), index=True, nullable=False)
     token_hash: Mapped[str] = mapped_column(
-        String(length=settings.auth.token_hash.length), unique=True, index=True, nullable=False
+        String(length=settings.auth.token_hash.length),
+        unique=True,
+        index=True,
+        nullable=False,
     )
 
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True, nullable=False)

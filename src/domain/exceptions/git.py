@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from domain.exceptions import CustomException
 from domain.exceptions.common import AlreadyExistsException, NotFoundException
 
@@ -47,3 +49,21 @@ class FileNotFoundException(GitException):
 class IsDirectoryException(GitException):
     def __init__(self, *, file_path: str) -> None:
         self.msg = f"Expected a file, but found a directory at path: {file_path}"
+
+
+# ====================
+# ==== Repository ====
+# ====================
+class RepositoryException(GitException):
+    pass
+
+
+class RepositoryNotFoundException(NotFoundException, RepositoryException):
+    def __init__(self, *, repo_id: UUID) -> None:
+        super().__init__(f"Repository with id {repo_id} not found")
+
+
+class RepositoryAlreadyExistsException(AlreadyExistsException, RepositoryException):
+    def __init__(self, *, repository_name: str) -> None:
+        self.repository_name = repository_name
+        super().__init__(f"Repository '{repository_name}' already exists")

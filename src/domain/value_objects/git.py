@@ -21,5 +21,5 @@ class CommitInfo(BaseModel):
     committed_datetime: datetime
 
 
-class Repository(BaseModel):
+class FsRepo(BaseModel):
     full_path: Path

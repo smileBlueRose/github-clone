@@ -7,35 +7,15 @@ if os.getenv("ENV") != "test":
 
 import asyncio
 from pathlib import Path
-from typing import Any, AsyncGenerator, Generator
-from unittest.mock import PropertyMock, patch
+from typing import AsyncGenerator, Generator
 from uuid import uuid4
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from config import settings
 from domain.entities.user import User
 from infrastructure.database.models.base import Base
-
-
-def pytest_sessionstart(session: pytest.Session) -> None:
-    test_url = "postgresql+asyncpg://user:pass@localhost:5433/test_db"
-
-    patcher_method = patch("src.config.config.DatabaseConfig.read_db_password", return_value="N/A")
-
-    patcher_url = patch("src.config.config.DatabaseConfig.url", new_callable=PropertyMock, return_value=test_url)
-
-    patcher_method.start()
-    patcher_url.start()
-
-    session.db_patchers = [patcher_method, patcher_url]  # type: ignore[attr-defined]
-
-
-def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
-    db_patchers: list[Any] | None = getattr(session, "db_patchers", None)
-    if db_patchers:
-        for patcher in db_patchers:
-            patcher.stop()
 
 
 @pytest.fixture(scope="session")
@@ -92,10 +72,10 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 
 
 @pytest.fixture(scope="function")
-async def session(event_loop: asyncio.AbstractEventLoop) -> AsyncGenerator[AsyncSession, None]:
-    test_url = "postgresql+asyncpg://user:pass@localhost:5433/test_db"
-
-    engine = create_async_engine(test_url, echo=False)
+async def session(
+    event_loop: asyncio.AbstractEventLoop,
+) -> AsyncGenerator[AsyncSession, None]:
+    engine = create_async_engine(str(settings.db.url), echo=False)
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)

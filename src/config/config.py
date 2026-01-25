@@ -2,7 +2,7 @@ import os
 import re
 from datetime import UTC, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 from urllib.parse import quote_plus
 
 from loguru import logger
@@ -33,7 +33,6 @@ class RunConfig(BaseModel):
 class ApiConfig(BaseModel):
     class ApiV1Confg(BaseModel):
         prefix: str = "/v1"
-        users_prefix: str = "/users"
 
     # TODO: It's not a good structure. Late it will grow fast and become really big & complicated. Refactor it
     class AuthConfig(BaseModel):
@@ -47,9 +46,20 @@ class ApiConfig(BaseModel):
         refresh_prefix: str = "/refresh"
         refresh_methods: list[str] = ["POST"]
 
+    class GitConfig(BaseModel):
+        prefix: str = "/git"
+
+        create_prefix: str = "/create"
+        create_methods: list[str] = ["POST"]
+
+    class UserConfig(BaseModel):
+        prefix: str = "/users"
+
     prefix: str = "/api"
     v1: ApiV1Confg = ApiV1Confg()
     auth: AuthConfig = AuthConfig()
+    git: GitConfig = GitConfig()
+    users: UserConfig = UserConfig()
 
 
 class DatabaseConfig(BaseModel):
@@ -78,7 +88,7 @@ class DatabaseConfig(BaseModel):
             return ""
 
         try:
-            return Path(self.password_file).read_text().strip()
+            return (BASE_DIR / Path(self.password_file)).read_text().strip()
         except FileNotFoundError:
             logger.warning(f"Password file not found at {self.password_file}")
             return ""
@@ -141,11 +151,11 @@ class AuthConfig(BaseModel):
 
         @property
         def private_key(self) -> str:
-            return Path(self.private_key_file_path).read_text()
+            return (BASE_DIR / Path(self.private_key_file_path)).read_text()
 
         @property
         def public_key(self) -> str:
-            return Path(self.public_key_file_path).read_text()
+            return (BASE_DIR / Path(self.public_key_file_path)).read_text()
 
     class TokenHash(BaseModel):
         algorithm: str = "sha256"
@@ -158,9 +168,19 @@ class AuthConfig(BaseModel):
         # Passwords contains at least one: lowercase letter, uppercase letter and digit
         pattern: re.Pattern[str] = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$")
 
+    class Cookies(BaseModel):
+        class Refresh(BaseModel):
+            httponly: bool = True
+            secure: bool = True
+            samesite: str = "Lax"
+            max_age: int = 30 * 24 * 3600  # 30 days
+
+        refresh: Refresh = Refresh()
+
     jwt: JWT
     token_hash: TokenHash = TokenHash()
     password: Password = Password()
+    cookies: Cookies = Cookies()
 
 
 class Logger(BaseModel):
@@ -173,9 +193,14 @@ class SessionConfig(BaseModel):
 
 
 class GitConfig(BaseModel):
-    git_storage_base_path: Path = (
-        Path(os.getenv("LOCALAPPDATA", "C:/Temp")) / "github-clone" / "repos" if os.name == "nt" else Path("/var/repos")
-    )
+    repositories_base_path: str
+
+    repository_name_pattern: ClassVar[re.Pattern[str]] = re.compile(r"^[a-zA-Z0-9_-]{1,100}$")
+    description_max_length: int = 10_000
+
+    @property
+    def storage_base_path(self) -> Path:
+        return BASE_DIR / self.repositories_base_path
 
 
 class Settings(BaseSettings):
@@ -195,6 +220,7 @@ class Settings(BaseSettings):
     session: SessionConfig = SessionConfig()
 
     user: UserConfig = UserConfig()
+    git: GitConfig
 
 
 logger.info(f"Using {env_file}")

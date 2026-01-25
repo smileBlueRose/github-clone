@@ -13,7 +13,11 @@ class UserException(CustomException):
 
 class UserNotFoundException(UserException, NotFoundException):
     def __init__(
-        self, *, user_id: UUID | None = None, email: EmailStr | None = None, username: str | None = None
+        self,
+        *,
+        user_id: UUID | None = None,
+        email: EmailStr | None = None,
+        username: str | None = None,
     ) -> None:
         self.user_id = user_id
         self.email = email

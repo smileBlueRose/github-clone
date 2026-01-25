@@ -9,7 +9,12 @@ from config import settings
 from domain.entities.user import User
 from domain.exceptions.auth import InvalidTokenException, TokenExpiredException
 from domain.ports.service import BaseService
-from domain.value_objects.token import AccessTokenPayload, AccessTokenVo, RefreshTokenPayload, RefreshTokenVo
+from domain.value_objects.token import (
+    AccessTokenPayload,
+    AccessTokenVo,
+    RefreshTokenPayload,
+    RefreshTokenVo,
+)
 
 
 class TokenService(BaseService):
@@ -157,12 +162,17 @@ class TokenService(BaseService):
             token.value,
             key=self.public_key,
             algorithms=[settings.auth.jwt.algorithm],
-            options={**settings.auth.jwt.refresh_decode_options, "verify_signature": False},
+            options={
+                **settings.auth.jwt.refresh_decode_options,
+                "verify_signature": False,
+            },
         )
         return self._payload_dict_to_refresh_payload(payload)
 
     @staticmethod
-    def _payload_dict_to_refresh_payload(payload: dict[str, Any]) -> RefreshTokenPayload:
+    def _payload_dict_to_refresh_payload(
+        payload: dict[str, Any],
+    ) -> RefreshTokenPayload:
         """Convert JWT payload dictionary to RefreshTokenPayload object."""
         return RefreshTokenPayload(
             sub=payload["sub"],

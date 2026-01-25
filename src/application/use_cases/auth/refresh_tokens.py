@@ -12,7 +12,10 @@ from domain.exceptions.user import UserInactiveException
 from domain.schemas.refresh_token import RefreshTokenCreateSchema
 from domain.services.auth.token import TokenService
 from domain.value_objects.token import RefreshTokenVo
-from infrastructure.repositories.refresh_token import RefreshTokenReadRepository, RefreshTokenWriteRepository
+from infrastructure.repositories.refresh_token import (
+    RefreshTokenReadRepository,
+    RefreshTokenWriteRepository,
+)
 from infrastructure.repositories.user import UserReadRepository
 
 
@@ -42,7 +45,9 @@ class RefreshTokensUseCase(AbstractUseCase[RefreshTokensCommand]):
 
     async def execute(self, command: RefreshTokensCommand) -> Any:
         logger.bind(
-            use_case=self.__class__.__name__, ip_address=command.ip_address, user_agent=command.user_agent
+            use_case=self.__class__.__name__,
+            ip_address=command.ip_address,
+            user_agent=command.user_agent,
         ).info("Starting token refresh process")
 
         async with self._uow:
@@ -57,7 +62,8 @@ class RefreshTokensUseCase(AbstractUseCase[RefreshTokensCommand]):
                 raise RefreshTokenAlreadyRevokedException()
 
             self.token_service.verify_token_hash(
-                token=RefreshTokenVo(value=command.refresh_token), expected_hash=old_refresh_entity.token_hash
+                token=RefreshTokenVo(value=command.refresh_token),
+                expected_hash=old_refresh_entity.token_hash,
             )
 
             await repos.refresh_write.revoke_by_identity(payload.jti)

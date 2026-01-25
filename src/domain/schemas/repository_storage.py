@@ -1,5 +1,8 @@
-from pydantic import BaseModel
+from uuid import UUID
 
+from pydantic import BaseModel, Field
+
+from domain.ports.schemas import BaseCreateSchema, BaseUpdateSchema
 from domain.value_objects.git import Author
 
 
@@ -66,3 +69,17 @@ class DeleteFileSchema(BaseModel):
 
 class GetRefsSchema(BaseModel):
     repo_path: str
+
+
+# ===============
+# ==== MODEL ====
+# ===============
+class RepositoryCreateSchema(BaseCreateSchema):
+    name: str = Field(max_length=255)
+    owner_id: UUID
+    description: str | None = None
+
+
+class RepositoryUpdateSchema(BaseUpdateSchema):
+    name: str | None = None
+    description: str | None = None

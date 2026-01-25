@@ -11,7 +11,11 @@ from domain.value_objects.token import AccessTokenVo, RefreshTokenVo
 
 
 class AuthenticationService(BaseService):
-    def __init__(self, token_service: TokenService, user_read_repository: AbstractUserReadRepository) -> None:
+    def __init__(
+        self,
+        token_service: TokenService,
+        user_read_repository: AbstractUserReadRepository,
+    ) -> None:
         self._token_service = token_service
         self._read_repository = user_read_repository
 
@@ -40,4 +44,7 @@ class AuthenticationService(BaseService):
 
     @staticmethod
     def check_password(password: str, hashed_password: str) -> bool:
-        return bcrypt.checkpw(password=password.encode("utf-8"), hashed_password=hashed_password.encode("utf-8"))
+        return bcrypt.checkpw(
+            password=password.encode("utf-8"),
+            hashed_password=hashed_password.encode("utf-8"),
+        )

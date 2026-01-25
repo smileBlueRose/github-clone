@@ -8,7 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from utils import create_user_model
 
 from domain.exceptions.refresh_token import RefreshTokenNotFoundException
-from domain.schemas.refresh_token import RefreshTokenCreateSchema, RefreshTokenUpdateSchema
+from domain.schemas.refresh_token import (
+    RefreshTokenCreateSchema,
+    RefreshTokenUpdateSchema,
+)
 from infrastructure.database.models.refresh_token import RefreshTokenModel
 from infrastructure.repositories.refresh_token import RefreshTokenWriteRepository
 
