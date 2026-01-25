@@ -49,6 +49,9 @@ class ApiConfig(BaseModel):
     class GitConfig(BaseModel):
         prefix: str = "/git"
 
+        create_prefix: str = "/create"
+        create_methods: list[str] = ["POST"]
+
     class UserConfig(BaseModel):
         prefix: str = "/users"
 

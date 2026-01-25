@@ -1,17 +1,13 @@
 import uuid
-from dataclasses import dataclass
-from typing import Any
-from uuid import UUID
+from dataclasses import asdict, dataclass
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from domain.entities.git import Repository
 from domain.exceptions.git import RepositoryNotFoundException
 from domain.schemas.repository_storage import RepositoryCreateSchema, RepositoryUpdateSchema
-from infrastructure.repositories.repository import RepositoryReader, RepositoryWriter
+from infrastructure.repositories.repository import RepositoryWriter
 from tests.utils import create_user_model
-from dataclasses import asdict
 
 
 @pytest.fixture
