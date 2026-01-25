@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import EmailStr, Field
@@ -22,3 +23,5 @@ class User(BaseEntity):
     model_config = {"from_attributes": True}
 
     # TODO: add last_login
+    def to_policy_context(self) -> dict[str, Any]:
+        return {"id": self.id}
