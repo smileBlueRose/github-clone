@@ -225,3 +225,4 @@ db_password.txt
 
 *.sql
 test.py
+repos/
