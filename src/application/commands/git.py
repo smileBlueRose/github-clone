@@ -6,6 +6,18 @@ from application.ports.command import BaseCommand
 from config import settings
 
 
+def validate_repository_name(name: str) -> str:
+    """:raises ValueError:"""
+
+    if not settings.git.repository_name_pattern.match(name):
+        raise ValueError(
+            "Repository name must contain only letters, numbers, hyphens, underscores, "
+            "and dots (1-100 characters). Cannot start or end with a dot."
+        )
+
+    return name
+
+
 class CreateRepositoryCommand(BaseCommand):
     repository_name: str
     user_id: UUID
@@ -15,11 +27,17 @@ class CreateRepositoryCommand(BaseCommand):
     @classmethod
     def validate_repository_name(cls, v: str) -> str:
         """:raises ValueError:"""
+        return validate_repository_name(v)
 
-        if not settings.git.repository_name_pattern.match(v):
-            raise ValueError(
-                "Repository name must contain only letters, numbers, hyphens, underscores, "
-                "and dots (1-100 characters). Cannot start or end with a dot."
-            )
 
-        return v
+class DeleteRepositoryCommand(BaseCommand):
+    username: str
+    repository_name: str
+    user_id: UUID
+
+    @field_validator("repository_name")
+    @classmethod
+    def validate_repository_name(cls, v: str) -> str:
+        """:raises ValueError:"""
+
+        return validate_repository_name(v)
