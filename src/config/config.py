@@ -218,6 +218,7 @@ class Settings(BaseSettings):
     auth: AuthConfig
     logger: Logger
     session: SessionConfig = SessionConfig()
+    policies_file_path: str
 
     user: UserConfig = UserConfig()
     git: GitConfig

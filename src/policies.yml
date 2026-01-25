@@ -34,3 +34,13 @@
 #    Common use: Comparing subject and resource (e.g., "subject.id == resource.owner_id").
 #
 # ================================================================
+
+policies:
+  - name: "allow_owner_delete_repository"
+    action: "repository:delete"
+    effect: "ALLOW"
+    priority: 10
+    conditions:
+    - subject_field: "id"
+      operator: "=="
+      resource_field: "owner_id"
