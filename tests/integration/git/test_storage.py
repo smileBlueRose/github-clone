@@ -38,7 +38,7 @@ def temp_storage_path() -> Generator[Path, None, None]:
 
 @pytest.fixture
 def git_storage(temp_storage_path: Path) -> GitPythonStorage:
-    return GitPythonStorage(repo_path=temp_storage_path)
+    return GitPythonStorage(repositories_dir=temp_storage_path)
 
 
 @pytest.fixture
