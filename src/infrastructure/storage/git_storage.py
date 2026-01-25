@@ -45,9 +45,8 @@ class GitPythonStorage(AbstractRepositoryStorage):
         stage: int
         path: str
 
-    def __init__(self, repo_path: Path) -> None:
-        self.base_path = repo_path
-        self.base_path.mkdir(parents=True, exist_ok=True)
+    def __init__(self, repositories_dir: Path) -> None:
+        self.base_path = repositories_dir
 
     async def init_repository(self, schema: InitRepositorySchema) -> FsRepo:
         def _init() -> FsRepo:
