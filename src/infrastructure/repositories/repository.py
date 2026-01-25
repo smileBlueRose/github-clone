@@ -12,6 +12,7 @@ from domain.ports.repositories.git_repo import (
 )
 from domain.schemas.repository_storage import RepositoryCreateSchema, RepositoryUpdateSchema
 from infrastructure.database.models.repository import RepositoryModel
+from infrastructure.database.models.user import UserModel
 
 
 class RepositoryWriter(AbstractRepositoryWriter):
@@ -71,6 +72,10 @@ class RepositoryReader(AbstractRepositoryReader):
 
         if filter_.user_id is not None:
             stmt = stmt.where(RepositoryModel.owner_id == filter_.user_id)
+
+        if filter_.username is not None:
+            stmt = stmt.join(UserModel, RepositoryModel.owner_id == UserModel.id)
+            stmt = stmt.where(UserModel.username == filter_.username)
 
         if filter_.repository_name is not None:
             stmt = stmt.where(RepositoryModel.name == filter_.repository_name)
