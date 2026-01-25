@@ -13,6 +13,10 @@ from infrastructure.middleware.setup import setup_logging_middleware
 
 
 def create_app() -> Flask:
+    container = Container()
+
+    container.wire(modules=["api.v1.auth", "api.v1.git"])
+
     app = Flask(__name__)
     app.url_map.strict_slashes = False
 
@@ -20,10 +24,6 @@ def create_app() -> Flask:
     register_error_handlers(app)
 
     app.register_blueprint(api_router)
-
-    container = Container()
-    container.wire(modules=["api.v1.auth"])
-    container.wire(modules=["infrastructure.middleware.auth"])
 
     return app
 
