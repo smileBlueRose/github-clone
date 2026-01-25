@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel, Field
 
 from domain.ports.schemas import BaseCreateSchema, BaseUpdateSchema
@@ -74,7 +76,7 @@ class GetRefsSchema(BaseModel):
 # ===============
 class GitRepoCreateSchema(BaseCreateSchema):
     name: str = Field(max_length=255)
-    owner_id: int
+    owner_id: UUID
     description: str | None = None
 
 

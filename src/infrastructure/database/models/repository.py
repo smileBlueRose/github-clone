@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -12,7 +14,7 @@ class RepositoryModel(Base[Repository], UUIDMixin, CreatedAtMixin, UpdatedAtMixi
     __tablename__ = "repositories"
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    owner_id: Mapped[int] = mapped_column(ForeignKey(UserModel.id), nullable=False)
+    owner_id: Mapped[UUID] = mapped_column(ForeignKey(UserModel.id), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     def to_entity(self) -> Repository:
