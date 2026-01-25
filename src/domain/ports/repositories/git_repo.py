@@ -5,6 +5,7 @@ from domain.entities.git import Repository
 from domain.filters.git import RepositoryFilter
 from domain.ports.repository import AbstractReadRepository, AbstractWriteRepository
 from domain.schemas.repository_storage import RepositoryCreateSchema, RepositoryUpdateSchema
+from domain.value_objects.common import Pagination
 
 
 class AbstractRepositoryReader(AbstractReadRepository[Repository, UUID, RepositoryFilter]):
@@ -13,7 +14,7 @@ class AbstractRepositoryReader(AbstractReadRepository[Repository, UUID, Reposito
         """:raises GitRepositoryNotFoundException:"""
 
     @abstractmethod
-    async def get_all(self, filter_: RepositoryFilter) -> list[Repository]:
+    async def get_all(self, filter_: RepositoryFilter, pagination: Pagination | None = None) -> list[Repository]:
         pass
 
 

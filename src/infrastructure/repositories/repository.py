@@ -11,6 +11,7 @@ from domain.ports.repositories.git_repo import (
     AbstractRepositoryWriter,
 )
 from domain.schemas.repository_storage import RepositoryCreateSchema, RepositoryUpdateSchema
+from domain.value_objects.common import Pagination
 from infrastructure.database.models.repository import RepositoryModel
 from infrastructure.database.models.user import UserModel
 
@@ -67,7 +68,7 @@ class RepositoryReader(AbstractRepositoryReader):
 
         return repo_model.to_entity()
 
-    async def get_all(self, filter_: RepositoryFilter) -> list[Repository]:
+    async def get_all(self, filter_: RepositoryFilter, pagination: Pagination | None = None) -> list[Repository]:
         stmt = select(RepositoryModel)
 
         if filter_.user_id is not None:
@@ -79,6 +80,9 @@ class RepositoryReader(AbstractRepositoryReader):
 
         if filter_.repository_name is not None:
             stmt = stmt.where(RepositoryModel.name == filter_.repository_name)
+
+        if pagination:
+            stmt = stmt.limit(pagination.limit).offset(pagination.offset)
 
         result = await self._session.execute(stmt)
         return [i.to_entity() for i in result.scalars().all()]
