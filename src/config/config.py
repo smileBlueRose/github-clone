@@ -190,9 +190,11 @@ class SessionConfig(BaseModel):
 
 
 class GitConfig(BaseModel):
-    git_storage_base_path: Path = (
-        Path(os.getenv("LOCALAPPDATA", "C:/Temp")) / "github-clone" / "repos" if os.name == "nt" else Path("/var/repos")
-    )
+    repositories_base_path: str
+
+    @property
+    def storage_base_path(self) -> Path:
+        return BASE_DIR / self.repositories_base_path
 
 
 class Settings(BaseSettings):
@@ -212,6 +214,7 @@ class Settings(BaseSettings):
     session: SessionConfig = SessionConfig()
 
     user: UserConfig = UserConfig()
+    git: GitConfig
 
 
 logger.info(f"Using {env_file}")
