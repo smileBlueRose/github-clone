@@ -51,6 +51,7 @@ class ApiConfig(BaseModel):
 
         create_prefix: str = "/create"
         create_methods: list[str] = ["POST"]
+        delete_methods: list[str] = ["DELETE"]
 
     class UserConfig(BaseModel):
         prefix: str = "/users"
@@ -222,6 +223,8 @@ class Settings(BaseSettings):
 
     user: UserConfig = UserConfig()
     git: GitConfig
+
+
 
 
 logger.info(f"Using {env_file}")
