@@ -4,6 +4,7 @@ from pydantic import Field, field_validator
 
 from application.ports.command import BaseCommand
 from config import settings
+from domain.value_objects.common import Pagination
 
 
 def validate_repository_name(name: str) -> str:
@@ -41,3 +42,10 @@ class DeleteRepositoryCommand(BaseCommand):
         """:raises ValueError:"""
 
         return validate_repository_name(v)
+
+
+class GetRepositoryCommand(BaseCommand):
+    user_id: UUID | None = None
+    username: str | None = None
+    repository_name: str | None = None
+    pagination: Pagination = Pagination()

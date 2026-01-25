@@ -225,7 +225,5 @@ class Settings(BaseSettings):
     git: GitConfig
 
 
-
-
 logger.info(f"Using {env_file}")
 settings = Settings()  # type: ignore
