@@ -1,5 +1,5 @@
 import uuid
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Any
 from uuid import UUID
 
@@ -28,15 +28,8 @@ class TestRepositoryReader:
         name: str = "test-repo"
         description: str = "description"
 
-        def to_create_schema(self, **kwargs: Any) -> RepositoryCreateSchema:
-            data = dict(
-                name=self.name,
-                owner_id=self.owner_id,
-                description=self.description,
-            )
-            data.update(**kwargs)
-
-            return RepositoryCreateSchema(**data)  # type: ignore
+        def to_create_schema(self) -> RepositoryCreateSchema:
+            return RepositoryCreateSchema(**asdict(self))
 
     async def _create_repo(self, session: AsyncSession, owner_id: UUID, **kwargs: Any) -> Repository:
         schema = self.TestData(owner_id=owner_id, **kwargs).to_create_schema()
