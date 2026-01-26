@@ -49,3 +49,20 @@ class GetRepositoryCommand(BaseCommand):
     username: str | None = None
     repository_name: str | None = None
     pagination: Pagination = Pagination()
+
+
+class GetBranchesCommand(BaseCommand):
+    username: str
+    repository_name: str
+
+
+class UpdateFileCommand(BaseCommand):
+    user_id: UUID
+    username: str
+    repo_name: str
+    branch_name: str
+
+    file_path: str
+    data: bytes
+
+    message: str
