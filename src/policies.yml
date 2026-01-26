@@ -44,3 +44,12 @@ policies:
     - subject_field: "id"
       operator: "=="
       resource_field: "owner_id"
+  
+  - name: "allow_owner_commit_repository"
+    action: "repository:commit"
+    effect: "ALLOW"
+    priority: 10
+    conditions:
+    - subject_field: "id"
+      operator: "=="
+      resource_field: "owner_id"
