@@ -15,7 +15,7 @@ from infrastructure.middleware.setup import setup_logging_middleware
 def create_app() -> Flask:
     container = Container()
 
-    container.wire(modules=["api.v1.auth", "api.v1.git"])
+    container.wire(modules=["api.v1.auth", "api.v1.repository"])
 
     app = Flask(__name__)
     app.url_map.strict_slashes = False

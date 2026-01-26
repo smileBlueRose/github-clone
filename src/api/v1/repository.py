@@ -3,7 +3,15 @@ from http import HTTPStatus
 from dependency_injector.wiring import Provide, inject
 from flask import Blueprint, Response, g, jsonify, request
 
-from application.commands.git import CreateRepositoryCommand, DeleteRepositoryCommand, GetRepositoryCommand
+from application.commands.git import (
+    CreateRepositoryCommand,
+    DeleteRepositoryCommand,
+    GetBranchesCommand,
+    GetRepositoryCommand,
+    UpdateFileCommand,
+)
+from application.use_cases.git.branches.get_branches import GetBranchesUseCase
+from application.use_cases.git.commits.update_file import UpdateFileUseCase
 from application.use_cases.git.create_repository import CreateRepositoryUseCase
 from application.use_cases.git.delete_repository import DeleteRepositoryUseCase
 from application.use_cases.git.get_repository import GetRepositoryUseCase
@@ -13,10 +21,10 @@ from infrastructure.di.container import Container
 from infrastructure.middleware.auth import require_auth
 from infrastructure.utils.security import get_sanitized_data, sanitize_html_input
 
-git_router = Blueprint("git", __name__, url_prefix=settings.api.repositories.prefix)
+repositories_router = Blueprint("repositories", __name__, url_prefix=settings.api.repositories.prefix)
 
 
-@git_router.route("", methods=["POST"])
+@repositories_router.route("", methods=["POST"])
 @require_auth()
 @inject
 async def create_repository(
@@ -34,7 +42,7 @@ async def create_repository(
     return jsonify({"repository_id": repository.id}), HTTPStatus.CREATED
 
 
-@git_router.route("/<username>/<repository_name>", methods=["DELETE"])
+@repositories_router.route("/<username>/<repository_name>", methods=["DELETE"])
 @require_auth()
 @inject
 async def delete_repository(
@@ -50,9 +58,9 @@ async def delete_repository(
     return Response(), HTTPStatus.NO_CONTENT
 
 
-@git_router.route("", methods=["GET"])
-@git_router.route("/<username>", methods=["GET"])
-@git_router.route("/<username>/<repository_name>/", methods=["GET"])
+@repositories_router.route("", methods=["GET"])
+@repositories_router.route("/<username>", methods=["GET"])
+@repositories_router.route("/<username>/<repository_name>", methods=["GET"])
 @inject
 async def get_repositories(
     username: str | None = None,
@@ -68,3 +76,42 @@ async def get_repositories(
     )
     result = await use_case.execute(command)
     return jsonify([i.model_dump() for i in result]), 200
+
+
+@repositories_router.route("/<username>/<repository_name>/branches", methods=["GET"])
+@inject
+async def get_branches(
+    username: str,
+    repository_name: str,
+    use_case: GetBranchesUseCase = Provide[Container.use_cases.get_branches],
+) -> tuple[Response, int]:
+    command = GetBranchesCommand(username=username, repository_name=repository_name)
+    branches = await use_case.execute(command)
+
+    return jsonify([i.model_dump() for i in branches]), 200
+
+
+@repositories_router.route("/<username>/<repository_name>/contents/<branch_name>/<path:file_path>", methods=["POST"])
+@require_auth()
+@inject
+async def update_file(
+    username: str,
+    repository_name: str,
+    branch_name: str,
+    file_path: str,
+    use_case: UpdateFileUseCase = Provide[Container.use_cases.update_file],
+) -> tuple[Response, int]:
+
+    command = UpdateFileCommand(
+        user_id=g.access_payload.sub,
+        username=username,
+        repo_name=repository_name,
+        branch_name=branch_name,
+        file_path=file_path,
+        data=request.files["file"].read(),
+        message=request.form["message"],
+    )
+    # TODO: Sanitize message
+    commit = await use_case.execute(command)
+
+    return jsonify(commit.model_dump()), 200
