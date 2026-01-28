@@ -10,12 +10,14 @@ from application.commands.git import (
     CreateRepositoryCommand,
     DeleteRepositoryCommand,
     GetBranchesCommand,
+    GetCommitsCommand,
     GetRepositoryCommand,
     UpdateFileCommand,
 )
 from application.use_cases.git.branches.create_branch import CreateBranchUseCase
 from application.use_cases.git.branches.get_branches import GetBranchesUseCase
 from application.use_cases.git.commits.create_initial_commit import CreateInitialCommitUseCase
+from application.use_cases.git.commits.get_commits import GetCommitsUseCase
 from application.use_cases.git.commits.update_file import UpdateFileUseCase
 from application.use_cases.git.create_repository import CreateRepositoryUseCase
 from application.use_cases.git.delete_repository import DeleteRepositoryUseCase
@@ -116,6 +118,24 @@ async def create_branch(
     await use_case.execute(command)
 
     return Response(), HTTPStatus.CREATED
+
+
+@repositories_router.route("/<username>/<repository_name>/branches/<branch_name>", methods=["GET"])
+@inject
+async def get_commits(
+    username: str,
+    repository_name: str,
+    branch_name: str,
+    use_case: GetCommitsUseCase = Provide[Container.use_cases.get_commits],
+) -> tuple[Response, int]:
+    command = GetCommitsCommand(
+        owner_username=username,
+        repository_name=repository_name,
+        branch_name=branch_name,
+    )
+    commits = await use_case.execute(command)
+
+    return jsonify([i.model_dump() for i in commits]), HTTPStatus.OK
 
 
 @repositories_router.route("/<username>/<repository_name>/contents/<branch_name>/<path:file_path>", methods=["POST"])
