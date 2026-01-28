@@ -12,6 +12,7 @@ from application.commands.git import (
     GetBranchesCommand,
     GetCommitsCommand,
     GetRepositoryCommand,
+    GetTreeCommand,
     UpdateFileCommand,
 )
 from application.use_cases.git.branches.create_branch import CreateBranchUseCase
@@ -22,6 +23,7 @@ from application.use_cases.git.commits.update_file import UpdateFileUseCase
 from application.use_cases.git.create_repository import CreateRepositoryUseCase
 from application.use_cases.git.delete_repository import DeleteRepositoryUseCase
 from application.use_cases.git.get_repository import GetRepositoryUseCase
+from application.use_cases.git.get_tree import GetTreeUseCase
 from config import settings
 from domain.value_objects.common import Pagination
 from infrastructure.di.container import Container
@@ -183,3 +185,26 @@ async def create_initial_commit(
     commit = await use_case.execute(command)
 
     return jsonify(commit.model_dump()), 200
+
+
+@repositories_router.get("/<username>/<repository_name>/tree/<ref>/")
+@repositories_router.get("/<username>/<repository_name>/tree/<ref>/<path:directory_path>")
+@inject
+async def get_tree(
+    username: str,
+    repository_name: str,
+    ref: str,
+    directory_path: str = "",
+    use_case: GetTreeUseCase = Provide[Container.use_cases.get_tree],
+) -> tuple[Response, int]:
+    _, data = get_sanitized_data(request)
+
+    command = GetTreeCommand(
+        owner_username=username,
+        repository_name=repository_name,
+        ref=ref,
+        path=directory_path,
+    )
+    tree_nodes = await use_case.execute(command)
+
+    return jsonify([i.model_dump() for i in tree_nodes]), HTTPStatus.OK
