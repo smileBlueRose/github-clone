@@ -10,6 +10,7 @@ from application.use_cases.git.commits.get_commits import GetCommitsUseCase
 from application.use_cases.git.commits.update_file import UpdateFileUseCase
 from application.use_cases.git.create_repository import CreateRepositoryUseCase
 from application.use_cases.git.delete_repository import DeleteRepositoryUseCase
+from application.use_cases.git.get_file import GetFileUseCase
 from application.use_cases.git.get_repository import GetRepositoryUseCase
 from application.use_cases.git.get_tree import GetTreeUseCase
 
@@ -84,6 +85,12 @@ class UseCaseContainer(containers.DeclarativeContainer):
 
     get_tree = providers.Factory(
         GetTreeUseCase,
+        uow=database.uow,
+        git_storage=storages.git_storage,
+    )
+
+    get_file = providers.Factory(
+        GetFileUseCase,
         uow=database.uow,
         git_storage=storages.git_storage,
     )

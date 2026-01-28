@@ -45,6 +45,7 @@ class CommitNotFoundException(CommitException, NotFoundException):
 class FileNotFoundException(GitException):
     def __init__(self, *, file_path: str | Path) -> None:
         self.msg = f"File not found at path: {file_path}"
+        super().__init__(self.msg)
 
 
 class IsDirectoryException(GitException):

@@ -97,3 +97,10 @@ class GetTreeCommand(BaseCommand):
     repository_name: str
     ref: str
     path: str
+
+
+class GetFileCommand(BaseCommand):
+    owner_username: str
+    repository_name: str
+    ref: str
+    file_path: str
