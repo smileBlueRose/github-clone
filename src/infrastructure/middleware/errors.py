@@ -8,8 +8,13 @@ from werkzeug.exceptions import HTTPException
 from api.exceptions.api import ApiException
 from domain.exceptions import CustomException
 from domain.exceptions.auth import InvalidCredentialsException, TokenExpiredException, WeakPasswordException
-from domain.exceptions.common import PermissionDenied
-from domain.exceptions.git import RepositoryAlreadyExistsException, RepositoryNotFoundException
+from domain.exceptions.common import MissingRequiredFieldException, PermissionDenied
+from domain.exceptions.git import (
+    BranchAlreadyExistsException,
+    BranchNotFoundException,
+    RepositoryAlreadyExistsException,
+    RepositoryNotFoundException,
+)
 from domain.exceptions.refresh_token import RefreshTokenAlreadyRevokedException
 from domain.exceptions.user import InvalidUsernameException, UserAlreadyExistsException
 
@@ -23,6 +28,9 @@ ERROR_MAP: dict[type, tuple[str, int]] = {
     RepositoryAlreadyExistsException: ("Repository with this name already exists", 409),
     PermissionDenied: ("You do not have permission to perform this action", 403),
     RepositoryNotFoundException: ("Repository not found", 404),
+    MissingRequiredFieldException: ("Missing required field", 422),
+    BranchNotFoundException: ("Branch not found", 404),
+    BranchAlreadyExistsException: ("Branch with this name already exists", 409),
 }
 
 

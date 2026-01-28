@@ -21,7 +21,8 @@ class GetBranchesUseCase(AbstractUseCase[GetBranchesCommand]):
     async def execute(self, command: GetBranchesCommand) -> Any:
         """:raises RepositoryNotFoundException:"""
 
-        logger.bind(use_case=self.__class__.__name__, command=command)
+        logger.bind(use_case=self.__class__.__name__, command=command).info("Starting get branches")
+
         async with self._uow:
             user_reader = UserReadRepository(session=self._uow.session)
             user = await user_reader.get_by_username(username=command.username)

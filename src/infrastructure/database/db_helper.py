@@ -59,7 +59,7 @@ async def check_connection() -> None:
             await session.execute(text("SELECT 1"))
             logger.info("Successfully connected to the database.")
     except Exception as e:
-        logger.bind(error=e).critical(f"Failed to connect to the database")
+        logger.bind(error=e).critical("Failed to connect to the database")
         raise e
     finally:
         logger.info("Closing connection to the database")
