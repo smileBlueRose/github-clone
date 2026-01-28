@@ -1,7 +1,10 @@
+import base64
+import io
 from http import HTTPStatus
 
+import filetype
 from dependency_injector.wiring import Provide, inject
-from flask import Blueprint, Response, g, jsonify, request
+from flask import Blueprint, Response, g, jsonify, request, send_file
 
 from api.utils.require_field import get_required_field
 from application.commands.git import (
@@ -11,6 +14,7 @@ from application.commands.git import (
     DeleteRepositoryCommand,
     GetBranchesCommand,
     GetCommitsCommand,
+    GetFileCommand,
     GetRepositoryCommand,
     GetTreeCommand,
     UpdateFileCommand,
@@ -22,6 +26,7 @@ from application.use_cases.git.commits.get_commits import GetCommitsUseCase
 from application.use_cases.git.commits.update_file import UpdateFileUseCase
 from application.use_cases.git.create_repository import CreateRepositoryUseCase
 from application.use_cases.git.delete_repository import DeleteRepositoryUseCase
+from application.use_cases.git.get_file import GetFileUseCase
 from application.use_cases.git.get_repository import GetRepositoryUseCase
 from application.use_cases.git.get_tree import GetTreeUseCase
 from config import settings
@@ -197,8 +202,6 @@ async def get_tree(
     directory_path: str = "",
     use_case: GetTreeUseCase = Provide[Container.use_cases.get_tree],
 ) -> tuple[Response, int]:
-    _, data = get_sanitized_data(request)
-
     command = GetTreeCommand(
         owner_username=username,
         repository_name=repository_name,
@@ -208,3 +211,29 @@ async def get_tree(
     tree_nodes = await use_case.execute(command)
 
     return jsonify([i.model_dump() for i in tree_nodes]), HTTPStatus.OK
+
+
+@repositories_router.get("/<username>/<repository_name>/blob/<ref>/<path:file_path>")
+@inject
+async def get_file(
+    username: str,
+    repository_name: str,
+    ref: str,
+    file_path: str,
+    use_case: GetFileUseCase = Provide[Container.use_cases.get_file],
+) -> Response:
+    command = GetFileCommand(
+        owner_username=username,
+        repository_name=repository_name,
+        file_path=file_path,
+        ref=ref,
+    )
+    # TODO: add file mimetype to usecase response
+    file_content = await use_case.execute(command)
+    if file_content.encoding == "base64":
+        data = io.BytesIO(base64.b64decode(file_content.content))
+    else:
+        data = io.BytesIO(file_content.content.encode(file_content.encoding))
+    kind = filetype.guess(data)
+
+    return send_file(data, mimetype=kind.mime if kind else "application/octet-stream", as_attachment=False)
