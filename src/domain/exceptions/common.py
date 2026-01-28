@@ -11,3 +11,7 @@ class AlreadyExistsException(CustomException):
 
 class PermissionDenied(CustomException):
     pass
+
+
+class MissingRequiredFieldException(CustomException):
+    pass
