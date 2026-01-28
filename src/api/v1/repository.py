@@ -3,13 +3,16 @@ from http import HTTPStatus
 from dependency_injector.wiring import Provide, inject
 from flask import Blueprint, Response, g, jsonify, request
 
+from api.utils.require_field import get_required_field
 from application.commands.git import (
+    CreateBranchCommand,
     CreateRepositoryCommand,
     DeleteRepositoryCommand,
     GetBranchesCommand,
     GetRepositoryCommand,
     UpdateFileCommand,
 )
+from application.use_cases.git.branches.create_branch import CreateBranchUseCase
 from application.use_cases.git.branches.get_branches import GetBranchesUseCase
 from application.use_cases.git.commits.update_file import UpdateFileUseCase
 from application.use_cases.git.create_repository import CreateRepositoryUseCase
@@ -89,6 +92,28 @@ async def get_branches(
     branches = await use_case.execute(command)
 
     return jsonify([i.model_dump() for i in branches]), 200
+
+
+@repositories_router.route("/<username>/<repository_name>/branches", methods=["POST"])
+@require_auth()
+@inject
+async def create_branch(
+    username: str,
+    repository_name: str,
+    use_case: CreateBranchUseCase = Provide[Container.use_cases.create_branch],
+) -> tuple[Response, int]:
+    _, data = get_sanitized_data(request)
+
+    command = CreateBranchCommand(
+        initiator_id=g.access_payload.sub,
+        owner_username=username,
+        repository_name=repository_name,
+        branch_name=get_required_field(data, "branch_name"),
+        from_branch=get_required_field(data, "from_branch"),
+    )
+    await use_case.execute(command)
+
+    return Response(), HTTPStatus.CREATED
 
 
 @repositories_router.route("/<username>/<repository_name>/contents/<branch_name>/<path:file_path>", methods=["POST"])
