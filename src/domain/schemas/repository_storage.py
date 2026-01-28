@@ -1,4 +1,4 @@
-from typing import Literal, NamedTuple
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -78,7 +78,7 @@ class GetTreeSchema(BaseModel):
     path: str
 
 
-class TreeNode(NamedTuple):
+class TreeNode(BaseModel):
     name: str
     path: str
     type: Literal["blob", "tree"]  # blob=file, tree=directory

@@ -12,6 +12,7 @@ from domain.exceptions.common import MissingRequiredFieldException, PermissionDe
 from domain.exceptions.git import (
     BranchAlreadyExistsException,
     BranchNotFoundException,
+    FileNotFoundException,
     RepositoryAlreadyExistsException,
     RepositoryAlreadyInitializedException,
     RepositoryNotFoundException,
@@ -33,6 +34,7 @@ ERROR_MAP: dict[type, tuple[str, int]] = {
     BranchNotFoundException: ("Branch not found", 404),
     BranchAlreadyExistsException: ("Branch with this name already exists", 409),
     RepositoryAlreadyInitializedException: ("Repository is already initialized", 409),
+    FileNotFoundException: ("File not found", 404),
 }
 
 

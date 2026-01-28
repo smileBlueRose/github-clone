@@ -90,3 +90,10 @@ class GetCommitsCommand(BaseCommand):
     branch_name: str
 
     pagination: Pagination = Pagination()
+
+
+class GetTreeCommand(BaseCommand):
+    owner_username: str
+    repository_name: str
+    ref: str
+    path: str
