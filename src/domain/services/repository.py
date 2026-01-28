@@ -17,5 +17,6 @@ class RepositoryService(BaseService):
         if result:
             raise RepositoryAlreadyExistsException(repository_name=repository_name)
 
-    def get_repository_path(self, user_id: UUID, repository_id: UUID) -> str:
+    @staticmethod
+    def get_repository_path(user_id: UUID, repository_id: UUID) -> str:
         return f"user_{user_id}/repository_{repository_id}"
