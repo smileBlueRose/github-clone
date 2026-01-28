@@ -13,6 +13,7 @@ from domain.exceptions.git import (
     BranchAlreadyExistsException,
     BranchNotFoundException,
     RepositoryAlreadyExistsException,
+    RepositoryAlreadyInitializedException,
     RepositoryNotFoundException,
 )
 from domain.exceptions.refresh_token import RefreshTokenAlreadyRevokedException
@@ -31,6 +32,7 @@ ERROR_MAP: dict[type, tuple[str, int]] = {
     MissingRequiredFieldException: ("Missing required field", 422),
     BranchNotFoundException: ("Branch not found", 404),
     BranchAlreadyExistsException: ("Branch with this name already exists", 409),
+    RepositoryAlreadyInitializedException: ("Repository is already initialized", 409),
 }
 
 

@@ -80,3 +80,8 @@ class RepositoryAlreadyExistsException(AlreadyExistsException, RepositoryExcepti
     def __init__(self, *, repository_name: str) -> None:
         self.repository_name = repository_name
         super().__init__(f"Repository '{repository_name}' already exists")
+
+
+class RepositoryAlreadyInitializedException(RepositoryException):
+    def __init__(self, *, repository_name: str) -> None:
+        super().__init__(f"Repository '{repository_name}' is already initialized")

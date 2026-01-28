@@ -74,3 +74,11 @@ class UpdateFileCommand(BaseCommand):
     data: bytes
 
     message: str
+
+
+class CreateInitialCommitCommand(BaseCommand):
+    initiator_id: UUID
+    owner_username: str
+    repository_name: str
+    branch_name: str
+    msg: str = "Initial commit"
