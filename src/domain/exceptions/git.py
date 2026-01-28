@@ -1,3 +1,4 @@
+from pathlib import Path
 from uuid import UUID
 
 from domain.exceptions import CustomException
@@ -42,13 +43,18 @@ class CommitNotFoundException(CommitException, NotFoundException):
 
 
 class FileNotFoundException(GitException):
-    def __init__(self, *, file_path: str) -> None:
+    def __init__(self, *, file_path: str | Path) -> None:
         self.msg = f"File not found at path: {file_path}"
 
 
 class IsDirectoryException(GitException):
     def __init__(self, *, file_path: str) -> None:
         self.msg = f"Expected a file, but found a directory at path: {file_path}"
+
+
+class IsFileException(GitException):
+    def __init__(self, *, file_path: str | None) -> None:
+        self.msg = f"Expected a directory, but found a file at path: {file_path}"
 
 
 # ====================

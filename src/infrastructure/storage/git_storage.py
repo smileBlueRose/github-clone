@@ -3,7 +3,7 @@ import base64
 import shutil
 import tempfile
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, cast
 
 import git
 from git import Repo
@@ -17,6 +17,7 @@ from domain.exceptions.git import (
     CurrentHeadDeletionException,
     FileNotFoundException,
     IsDirectoryException,
+    IsFileException,
     UnmergedBranchDeletionException,
 )
 from domain.ports.repository_storage import AbstractRepositoryStorage
@@ -29,7 +30,9 @@ from domain.schemas.repository_storage import (
     GetCommitsSchema,
     GetFileSchema,
     GetRefsSchema,
+    GetTreeSchema,
     InitRepositorySchema,
+    TreeNode,
     UpdateFileSchema,
 )
 from domain.value_objects.git import Author, BranchInfo, CommitInfo, FsRepo
@@ -335,3 +338,48 @@ class GitPythonStorage(AbstractRepositoryStorage):
             raise NotImplementedError("Full Git protocol support requires git-upload-pack implementation")
 
         return await asyncio.to_thread(_get_pack_data)
+
+    async def get_tree(self, schema: GetTreeSchema) -> list[TreeNode]:
+        """
+        :raises BranchNotFoundException:
+        :raises FileNotFoundException:
+        :raises IsFileException:
+        """
+
+        def _get() -> list[TreeNode]:
+            repo = Repo(self.base_path / schema.repo_path)
+
+            if schema.branch_name not in repo.heads:
+                raise BranchNotFoundException(branch=schema.branch_name)
+
+            commit = repo.heads[schema.branch_name].commit
+
+            if schema.path:
+                try:
+                    tree = commit.tree / schema.path
+                except KeyError as e:
+                    raise FileNotFoundException(file_path=schema.path) from e
+            else:
+                tree = commit.tree
+
+            if isinstance(tree, git.Blob):
+                raise IsFileException(file_path=schema.path)
+
+            nodes = []
+            for item in cast(git.Tree, tree):
+                node_type = "tree" if isinstance(item, git.Tree) else "blob"
+                size = item.size if isinstance(item, git.Blob) else None
+
+                nodes.append(
+                    TreeNode(
+                        name=item.name,
+                        path=cast(str, item.path),
+                        type=node_type,  # type: ignore[arg-type]
+                        sha=item.hexsha,
+                        size=size,
+                    )
+                )
+
+            return nodes
+
+        return await asyncio.to_thread(_get)

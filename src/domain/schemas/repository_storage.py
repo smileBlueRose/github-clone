@@ -1,3 +1,4 @@
+from typing import Literal, NamedTuple
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -69,6 +70,20 @@ class DeleteFileSchema(BaseModel):
 
 class GetRefsSchema(BaseModel):
     repo_path: str
+
+
+class GetTreeSchema(BaseModel):
+    repo_path: str
+    branch_name: str
+    path: str
+
+
+class TreeNode(NamedTuple):
+    name: str
+    path: str
+    type: Literal["blob", "tree"]  # blob=file, tree=directory
+    sha: str
+    size: int | None  # None for directory
 
 
 # ===============
