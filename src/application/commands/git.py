@@ -56,6 +56,14 @@ class GetBranchesCommand(BaseCommand):
     repository_name: str
 
 
+class CreateBranchCommand(BaseCommand):
+    initiator_id: UUID
+    owner_username: str
+    repository_name: str
+    branch_name: str
+    from_branch: str
+
+
 class UpdateFileCommand(BaseCommand):
     user_id: UUID
     username: str

@@ -3,6 +3,7 @@ from dependency_injector import containers, providers
 from application.use_cases.auth.login_user import LoginUserUseCase
 from application.use_cases.auth.refresh_tokens import RefreshTokensUseCase
 from application.use_cases.auth.register_user import RegisterUserUseCase
+from application.use_cases.git.branches.create_branch import CreateBranchUseCase
 from application.use_cases.git.branches.get_branches import GetBranchesUseCase
 from application.use_cases.git.commits.update_file import UpdateFileUseCase
 from application.use_cases.git.create_repository import CreateRepositoryUseCase
@@ -49,6 +50,13 @@ class UseCaseContainer(containers.DeclarativeContainer):
         GetBranchesUseCase,
         uow=database.uow,
         git_storage=storages.git_storage,
+    )
+
+    create_branch = providers.Factory(
+        CreateBranchUseCase,
+        uow=database.uow,
+        git_storage=storages.git_storage,
+        policy_service=services.policy_service,
     )
 
     update_file = providers.Factory(
