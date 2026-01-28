@@ -6,6 +6,7 @@ from flask import Blueprint, Response, g, jsonify, request
 from api.utils.require_field import get_required_field
 from application.commands.git import (
     CreateBranchCommand,
+    CreateInitialCommitCommand,
     CreateRepositoryCommand,
     DeleteRepositoryCommand,
     GetBranchesCommand,
@@ -14,6 +15,7 @@ from application.commands.git import (
 )
 from application.use_cases.git.branches.create_branch import CreateBranchUseCase
 from application.use_cases.git.branches.get_branches import GetBranchesUseCase
+from application.use_cases.git.commits.create_initial_commit import CreateInitialCommitUseCase
 from application.use_cases.git.commits.update_file import UpdateFileUseCase
 from application.use_cases.git.create_repository import CreateRepositoryUseCase
 from application.use_cases.git.delete_repository import DeleteRepositoryUseCase
@@ -137,6 +139,27 @@ async def update_file(
         message=request.form["message"],
     )
     # TODO: Sanitize message
+    commit = await use_case.execute(command)
+
+    return jsonify(commit.model_dump()), 200
+
+
+@repositories_router.route("/<username>/<repository_name>/initial-commit", methods=["POST"])
+@require_auth()
+@inject
+async def create_initial_commit(
+    username: str,
+    repository_name: str,
+    use_case: CreateInitialCommitUseCase = Provide[Container.use_cases.create_initial_commit],
+) -> tuple[Response, int]:
+    _, data = get_sanitized_data(request)
+
+    command = CreateInitialCommitCommand(
+        initiator_id=g.access_payload.sub,
+        owner_username=username,
+        repository_name=repository_name,
+        branch_name=get_required_field(data, "branch_name"),
+    )
     commit = await use_case.execute(command)
 
     return jsonify(commit.model_dump()), 200
