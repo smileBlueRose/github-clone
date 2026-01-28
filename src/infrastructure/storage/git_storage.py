@@ -165,6 +165,7 @@ class GitPythonStorage(AbstractRepositoryStorage):
 
         return await asyncio.to_thread(_get)
 
+    # TODO: add offset to get_commits()
     async def get_commits(self, schema: GetCommitsSchema) -> list[CommitInfo]:
         """:raises BranchNotFoundException:"""
 

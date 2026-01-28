@@ -82,3 +82,11 @@ class CreateInitialCommitCommand(BaseCommand):
     repository_name: str
     branch_name: str
     msg: str = "Initial commit"
+
+
+class GetCommitsCommand(BaseCommand):
+    owner_username: str
+    repository_name: str
+    branch_name: str
+
+    pagination: Pagination = Pagination()

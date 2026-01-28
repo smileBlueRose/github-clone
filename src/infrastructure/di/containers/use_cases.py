@@ -6,6 +6,7 @@ from application.use_cases.auth.register_user import RegisterUserUseCase
 from application.use_cases.git.branches.create_branch import CreateBranchUseCase
 from application.use_cases.git.branches.get_branches import GetBranchesUseCase
 from application.use_cases.git.commits.create_initial_commit import CreateInitialCommitUseCase
+from application.use_cases.git.commits.get_commits import GetCommitsUseCase
 from application.use_cases.git.commits.update_file import UpdateFileUseCase
 from application.use_cases.git.create_repository import CreateRepositoryUseCase
 from application.use_cases.git.delete_repository import DeleteRepositoryUseCase
@@ -72,4 +73,10 @@ class UseCaseContainer(containers.DeclarativeContainer):
         uow=database.uow,
         git_storage=storages.git_storage,
         policy_service=services.policy_service,
+    )
+
+    get_commits = providers.Factory(
+        GetCommitsUseCase,
+        uow=database.uow,
+        git_storage=storages.git_storage,
     )
