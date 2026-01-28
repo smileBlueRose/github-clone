@@ -13,6 +13,7 @@ from domain.exceptions.git import (
     CurrentHeadDeletionException,
     FileNotFoundException,
     IsDirectoryException,
+    IsFileException,
     UnmergedBranchDeletionException,
 )
 from domain.schemas.repository_storage import (
@@ -23,6 +24,7 @@ from domain.schemas.repository_storage import (
     GetCommitsSchema,
     GetFileSchema,
     GetRefsSchema,
+    GetTreeSchema,
     InitRepositorySchema,
     UpdateFileSchema,
 )
@@ -768,3 +770,160 @@ class TestGitPythonStorage:
 
         with pytest.raises(IsDirectoryException):
             await git_storage.get_file(schema)
+
+    async def test_get_tree_root(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        await git_storage.update_file(
+            UpdateFileSchema(
+                repo_path=self.init_schema.repo_path,
+                file_path="README.md",
+                content="readme",
+                branch_name=self.default_branch,
+                message="add readme",
+                author=author,
+            )
+        )
+        await git_storage.update_file(
+            UpdateFileSchema(
+                repo_path=self.init_schema.repo_path,
+                file_path="src/main.py",
+                content="print('hello')",
+                branch_name=self.default_branch,
+                message="add main",
+                author=author,
+            )
+        )
+
+        tree = await git_storage.get_tree(
+            GetTreeSchema(
+                repo_path=self.init_schema.repo_path,
+                branch_name=self.default_branch,
+                path="",
+            )
+        )
+        assert len(tree) == 2
+        names = {node.name for node in tree}
+        assert names == {"README.md", "src"}
+
+        readme = next(n for n in tree if n.name == "README.md")
+        assert readme.type == "blob"
+        assert readme.size is not None
+
+        src = next(n for n in tree if n.name == "src")
+        assert src.type == "tree"
+        assert src.size is None
+
+    async def test_get_tree_subdirectory(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        await git_storage.update_file(
+            UpdateFileSchema(
+                repo_path=self.init_schema.repo_path,
+                file_path="src/main.py",
+                content="main",
+                branch_name=self.default_branch,
+                message="add main",
+                author=author,
+            )
+        )
+        await git_storage.update_file(
+            UpdateFileSchema(
+                repo_path=self.init_schema.repo_path,
+                file_path="src/utils.py",
+                content="utils",
+                branch_name=self.default_branch,
+                message="add utils",
+                author=author,
+            )
+        )
+
+        tree = await git_storage.get_tree(
+            GetTreeSchema(
+                repo_path=self.init_schema.repo_path,
+                branch_name=self.default_branch,
+                path="src",
+            )
+        )
+
+        assert len(tree) == 2
+        names = {node.name for node in tree}
+        assert names == {"main.py", "utils.py"}
+        assert all(node.type == "blob" for node in tree)
+
+    async def test_get_tree_branch_not_found(
+        self,
+        git_storage: GitPythonStorage,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        with pytest.raises(BranchNotFoundException):
+            await git_storage.get_tree(
+                GetTreeSchema(
+                    repo_path=self.init_schema.repo_path,
+                    branch_name="non-existing",
+                    path="",
+                )
+            )
+
+    async def test_get_tree_path_not_found(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        await git_storage.update_file(
+            UpdateFileSchema(
+                repo_path=self.init_schema.repo_path,
+                file_path="file.txt",
+                content="content",
+                branch_name=self.default_branch,
+                message="commit",
+                author=author,
+            )
+        )
+
+        with pytest.raises(FileNotFoundException):
+            await git_storage.get_tree(
+                GetTreeSchema(
+                    repo_path=self.init_schema.repo_path,
+                    branch_name=self.default_branch,
+                    path="non-existing",
+                )
+            )
+
+    async def test_get_tree_path_is_file(
+        self,
+        git_storage: GitPythonStorage,
+        author: Author,
+    ) -> None:
+        await git_storage.init_repository(self.init_schema)
+
+        await git_storage.update_file(
+            UpdateFileSchema(
+                repo_path=self.init_schema.repo_path,
+                file_path="file.txt",
+                content="content",
+                branch_name=self.default_branch,
+                message="commit",
+                author=author,
+            )
+        )
+
+        with pytest.raises(IsFileException):
+            await git_storage.get_tree(
+                GetTreeSchema(
+                    repo_path=self.init_schema.repo_path,
+                    branch_name=self.default_branch,
+                    path="file.txt",
+                )
+            )
