@@ -218,8 +218,8 @@ __marimo__/
 #######################################################################################
 
 # Secrets
-secrets/
-db_password.txt
+*/secrets/*
+!*/secrets/*.example
 
 .vscode/
 
