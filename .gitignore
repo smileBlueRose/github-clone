@@ -225,4 +225,5 @@ db_password.txt
 
 *.sql
 test.py
-repos/
+repos/*
+!repos/.gitkeep
