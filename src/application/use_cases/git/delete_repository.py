@@ -57,7 +57,7 @@ class DeleteRepositoryUseCase(AbstractUseCase[DeleteRepositoryCommand]):
             logger.debug("Repository deleted from the database")
 
             repository_path = RepositoryService.get_repository_path(
-                user_id=initiator.id, repository_id=target_repository.id
+                user_id=target_repository.owner_id, repository_id=target_repository.id
             )
             await self._storage.delete_repository(repo_path=repository_path)
             logger.bind(repository_path=repository_path).debug("Repository deleted from the file system")
