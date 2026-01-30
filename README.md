@@ -30,7 +30,12 @@ cd src
 uv sync --all-extras
 ```
 
-5. Run the application:
+5. Run migrations:
+```bash
+ENV=dev alembic upgrade head
+```
+
+6. Run the application:
 ```bash
 ENV=dev uv run main.py
 ```
@@ -63,7 +68,13 @@ cd src
 uv sync --all-extras
 ```
 
-5. Run the application:
+5. Run migrations:
+```cmd
+set ENV=dev
+uv run alembic upgrade head
+```
+
+6. Run the application:
 ```cmd
 set ENV=dev
 uv run main.py
@@ -120,3 +131,4 @@ docker compose -p github-clone-test ^
 set ENV=test
 uv run pytest .
 ```
+
