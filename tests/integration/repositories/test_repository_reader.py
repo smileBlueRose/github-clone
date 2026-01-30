@@ -56,3 +56,30 @@ class TestRepositoryReader:
         result = await reader.get_all(RepositoryFilter())
 
         assert len(result) == repo_count
+
+    async def test_get_by_username_and_repository_name(self, session: AsyncSession, reader: RepositoryReader) -> None:
+        user = await create_user_model(session)
+        repository_entity: Repository = await self._create_repo(session=session, owner_id=user.id)
+        result = await reader.get_by_username_and_repository_name(
+            username=user.username, repository_name=repository_entity.name
+        )
+
+        assert result == repository_entity
+
+    async def test_get_by_username_and_repository_name_with_non_existing_username(
+        self, session: AsyncSession, reader: RepositoryReader
+    ) -> None:
+        user = await create_user_model(session)
+        repository_entity: Repository = await self._create_repo(session=session, owner_id=user.id)
+
+        with pytest.raises(RepositoryNotFoundException):
+            await reader.get_by_username_and_repository_name(username="unkown", repository_name=repository_entity.name)
+
+    async def test_get_by_username_and_repository_name_with_non_existing_repository_name(
+        self, session: AsyncSession, reader: RepositoryReader
+    ) -> None:
+        user = await create_user_model(session)
+        await self._create_repo(session=session, owner_id=user.id)
+
+        with pytest.raises(RepositoryNotFoundException):
+            await reader.get_by_username_and_repository_name(username=user.username, repository_name="unkown")
