@@ -45,9 +45,8 @@ class DeleteRepositoryUseCase(AbstractUseCase[DeleteRepositoryCommand]):
             initiator = await self._user_reader_factory(self._uow.session).get_by_identity(command.initiator_id)
             initiator.ensure_active()
 
-            target_repository = await self._repository_reader_factory(
-                self._uow.session
-            ).get_by_username_and_repository_name(
+            reader = self._repository_reader_factory(self._uow.session)
+            target_repository = await reader.get_by_username_and_repository_name(
                 username=command.owner_username, repository_name=command.repository_name
             )
 

@@ -7,7 +7,7 @@ from werkzeug.exceptions import HTTPException
 
 from api.exceptions.api import ApiException
 from domain.exceptions import CustomException
-from domain.exceptions.auth import InvalidCredentialsException, TokenExpiredException, WeakPasswordException
+from domain.exceptions.auth import InvalidCredentialsException, InvalidTokenException, TokenExpiredException, WeakPasswordException
 from domain.exceptions.common import MissingRequiredFieldException, PermissionDenied
 from domain.exceptions.git import (
     BranchAlreadyExistsException,
@@ -36,8 +36,8 @@ ERROR_MAP: dict[type, tuple[str, int]] = {
     RepositoryAlreadyInitializedException: ("Repository is already initialized", 409),
     FileNotFoundException: ("File not found", 404),
     UserInactiveException: ("User account is inactive", 403),
+    InvalidTokenException: ("Invalid token", 401),
 }
-
 
 def register_error_handlers(app: Flask) -> None:
 
