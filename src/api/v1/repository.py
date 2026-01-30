@@ -65,7 +65,9 @@ async def delete_repository(
     use_case: DeleteRepositoryUseCase = Provide[Container.use_cases.delete_repository],
 ) -> tuple[Response, int]:
     payload = g.access_payload
-    command = DeleteRepositoryCommand(username=username, user_id=payload.sub, repository_name=repository_name)
+    command = DeleteRepositoryCommand(
+        owner_username=username, initiator_id=payload.sub, repository_name=repository_name
+    )
 
     await use_case.execute(command)
 

@@ -5,6 +5,7 @@ from uuid import UUID, uuid4
 from pydantic import EmailStr, Field
 
 from config import settings
+from domain.exceptions.user import UserInactiveException
 from domain.ports.entity import BaseEntity
 
 
@@ -25,3 +26,9 @@ class User(BaseEntity):
     # TODO: add last_login
     def to_policy_context(self) -> dict[str, Any]:
         return {"id": self.id}
+
+    def ensure_active(self) -> None:
+        """:raises UserInactiveException:"""
+
+        if not self.is_active:
+            raise UserInactiveException()

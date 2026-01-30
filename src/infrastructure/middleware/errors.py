@@ -18,7 +18,7 @@ from domain.exceptions.git import (
     RepositoryNotFoundException,
 )
 from domain.exceptions.refresh_token import RefreshTokenAlreadyRevokedException
-from domain.exceptions.user import InvalidUsernameException, UserAlreadyExistsException
+from domain.exceptions.user import InvalidUsernameException, UserAlreadyExistsException, UserInactiveException
 
 ERROR_MAP: dict[type, tuple[str, int]] = {
     UserAlreadyExistsException: ("User with this data already exists", 409),
@@ -35,6 +35,7 @@ ERROR_MAP: dict[type, tuple[str, int]] = {
     BranchAlreadyExistsException: ("Branch with this name already exists", 409),
     RepositoryAlreadyInitializedException: ("Repository is already initialized", 409),
     FileNotFoundException: ("File not found", 404),
+    UserInactiveException: ("User account is inactive", 403),
 }
 
 

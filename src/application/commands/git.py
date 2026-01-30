@@ -32,9 +32,9 @@ class CreateRepositoryCommand(BaseCommand):
 
 
 class DeleteRepositoryCommand(BaseCommand):
-    username: str
+    initiator_id: UUID
+    owner_username: str
     repository_name: str
-    user_id: UUID
 
     @field_validator("repository_name")
     @classmethod

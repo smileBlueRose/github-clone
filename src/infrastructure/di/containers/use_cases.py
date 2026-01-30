@@ -13,7 +13,7 @@ from application.use_cases.git.delete_repository import DeleteRepositoryUseCase
 from application.use_cases.git.get_file import GetFileUseCase
 from application.use_cases.git.get_repository import GetRepositoryUseCase
 from application.use_cases.git.get_tree import GetTreeUseCase
-from infrastructure.factories.repositories import create_repository_writer
+from infrastructure.factories.repositories import create_repository_reader, create_repository_writer, create_user_reader
 from infrastructure.factories.services import create_repository_service
 
 
@@ -48,6 +48,9 @@ class UseCaseContainer(containers.DeclarativeContainer):
         uow=database.uow,
         git_storage=storages.git_storage,
         policy_service=services.policy_service,
+        user_reader_factory=create_user_reader,
+        repository_reader_factory=create_repository_reader,
+        repository_writer_factory=create_repository_writer,
     )
     get_repositories = providers.Factory(
         GetRepositoryUseCase,
