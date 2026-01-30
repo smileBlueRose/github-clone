@@ -86,3 +86,18 @@ class RepositoryReader(AbstractRepositoryReader):
 
         result = await self._session.execute(stmt)
         return [i.to_entity() for i in result.scalars().all()]
+
+    async def get_by_username_and_repository_name(self, username: str, repository_name: str) -> Repository:
+        """:raises RepositoryNotFoundException:"""
+
+        stmt = (
+            select(RepositoryModel)
+            .join(UserModel, RepositoryModel.owner_id == UserModel.id)
+            .where(UserModel.username == username, RepositoryModel.name == repository_name)
+        )
+        result = (await self._session.execute(stmt)).scalar_one_or_none()
+
+        if result is None:
+            raise RepositoryNotFoundException(username=username, repository_name=repository_name)
+
+        return result.to_entity()

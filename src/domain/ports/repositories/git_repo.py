@@ -17,6 +17,10 @@ class AbstractRepositoryReader(AbstractReadRepository[Repository, UUID, Reposito
     async def get_all(self, filter_: RepositoryFilter, pagination: Pagination | None = None) -> list[Repository]:
         pass
 
+    @abstractmethod
+    async def get_by_username_and_repository_name(self, username: str, repository_name: str) -> Repository:
+        """:raises GitRepositoryNotFoundException:"""
+
 
 class AbstractRepositoryWriter(
     AbstractWriteRepository[Repository, RepositoryCreateSchema, RepositoryUpdateSchema, UUID]
@@ -28,7 +32,6 @@ class AbstractRepositoryWriter(
     @abstractmethod
     async def update(self, identity: UUID, schema: RepositoryUpdateSchema) -> Repository:
         """:raises RepositoryNotFoundException:"""
-
         pass
 
     @abstractmethod
